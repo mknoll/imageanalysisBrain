@@ -1,0 +1,27 @@
+Package: imageanalysisBrain
+Type: Package
+Title: Analysis of Brain Imaging Data
+Version: 0.98.0
+Date: 2017-01-16
+Author: Maximilian Knoll
+Maintainer: Maximilian Knoll <m.knoll@dkfz.de>
+Description: Extracting imaging features and separating MRI data into different tissue classes. 
+License: GPL-3
+RoxygenNote: 5.0.1
+Imports: doParallel,
+    foreach,
+    gplots,
+    graphics,
+    grDevices,
+    parallel,
+    plyr,
+    rgl,
+    stats
+Suggests: knitr,
+    rmarkdown,
+    testthat
+biocViews: Software,
+    BiomedicalInformatics,
+    DataImport,
+    FeatureExtraction,
+    Visualization

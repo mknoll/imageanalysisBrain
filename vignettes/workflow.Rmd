@@ -1,0 +1,251 @@
+---
+title: "Brain Image Analysis"
+author: "Maximilian Knoll"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+%\VignetteIndexEntry{Vignette Title}
+%\VignetteEngine{knitr::rmarkdown}
+\usepackage[utf8]{inputenc} 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load imaging data 
+
+DICOM files can be imported e.g. in MITK (http://www.mitk.org). MITK allows to 
+segment whole brain and tumor volumes and then export of the resulting volumes 
+as csv files.
+
+These files have the following composition:
+x | y | z | VALUE 
+whereas (x,y,z) are the non-standardized coordinates, and VALUE the respective
+value for T1ce, T2, .. sequences or CT data.
+
+These files are imported in a first step. Several different variants are
+possible:
+- Import the raw csv files with usually 4 columns
+- Store (x,y,z) coordinates in one single value
+- +/- compression (e.g. using gzip)
+
+The encoded coordinates are useful to easily perform set operations, and to
+save main memory when performing R analyses.
+
+After importing the data, a center of origin is determined to allow for 
+evaluation of distances, e.g. between brain and tumor center (getZeroCoord()).
+
+As different techniques are used for data acquisition, the maximum value in
+x dimension (coronar) should be normalized. This is done by calculating a
+scaling factor.
+
+
+```{r}
+require(data.table)
+source("R/misc.R")
+
+## Sample TCIA processed datasets
+samples <- c("TCGA-76-4931", "TCGA-76-6285")
+
+## collect all data
+allData <- list()
+for (i in 1:length(samples)) {
+    print(paste("Loading", samples[i], ""))
+    ## read GTV data
+    if (F) {
+        ##variant 1: separate columsn for x,y,z value
+        gtvFile <- system.file("extdata", 
+                                paste(
+                                    samples[i],"/","PXL_GTV.csv", sep=""), 
+                                package = "imageanalysisBrain")
+        gtv <- data.frame(fread(gtvFile, sep=",", header=T))
+        gtv$COORD <- enc(gtv$x, gtv$y, gtv$z)
+        } else {
+            ##variant 2: all info encoded in COORD column
+            gtvFile <- system.file("extdata", 
+                                    paste(
+                                        samples[i],"/","PXL_GTV_COORD.csv.gz", 
+                                        sep=""),
+                                    package = "imageanalysisBrain")
+            gtv <- read.table(gzfile(gtvFile), sep=",", header=T)
+            gtv$x <- decX(gtv$COORD)
+            gtv$y <- decY(gtv$COORD)
+            gtv$z <- decZ(gtv$COORD)
+            gtv <- gtv[,c(3:5,1:2)]
+            }
+    
+    ## read Brain data
+    if (F) {
+        brainFile <- system.file("extdata", 
+                                    paste(
+                                        samples[i],"/","PXL_BRAIN.csv", 
+                                        sep=""), 
+                                    package = "imageanalysisBrain")
+        brain <- data.frame(fread(brainFile, sep=",", header=T))
+        brain$COORD <- enc(brain$x, brain$y, brain$z)
+        } else {
+            ##variant 2: all info encoded in COORD column
+            brainFile <- system.file("extdata", 
+                                        paste(
+                                            samples[i],
+                                            "/",
+                                            "PXL_BRAIN_COORD.csv.gz", 
+                                            sep=""), 
+                                        package = "imageanalysisBrain")
+            brain <- read.table(gzfile(brainFile), sep=",", header=T)
+            brain$x <- decX(brain$COORD)
+            brain$y <- decY(brain$COORD)
+            brain$z <- decZ(brain$COORD)
+            brain <- brain[,c(3:5,1:2)]
+            }
+    
+    ## calculate x scaling factor 
+    xvals <- getXRange(brain)
+    xfactor <- 1/(xvals$xMax - xvals$xMin)
+    
+    ##Bind together and get Points of  Origins for Brain and Tumor Volumes
+    allData[[i]] <- list(name=samples[i],
+                        gtv=gtv,
+                        brain=brain,
+                        gtvZero=getZeroKoord(gtv, draw = F),
+                        brainZero=getZeroKoord(brain, draw = F),
+                        factor=xfactor
+                        )
+    }
+```
+
+
+## Image features 
+
+Several image features and distance metrics between brain and tumor centers 
+can be easily calculated. 
+
+```{r}
+library(e1071) 
+require(pheatmap)
+
+#column of interest (e.g. T1KM, T2, ADC...)
+index <- 4
+
+imgFeatures <- list()
+
+##basic features
+imgFeatures$gtvVolNorm <- 
+    do.call(rbind, 
+            lapply(allData, function(x) length(x$gtv$COORD)/
+                        length(x$brain$COORD)))
+imgFeatures$gtvSD <- 
+    do.call(rbind, 
+            lapply(allData, function(x) sd(x$gtv[,index])))
+imgFeatures$gtvRange <- 
+    do.call(rbind, 
+            lapply(allData, function(x) max(x$gtv[,index])-min(x$gtv[,index])))
+imgFeatures$koordDistCanberraNorm <- 
+    do.call(rbind, 
+            lapply(allData, function(x) 
+                dist(rbind(x$gtvZero[,c("x","y","z")]*x$factor, 
+                            x$brainZero[,c("x","y","z")]*x$factor), 
+                    method="canberra")))
+
+##additional Features
+imgFeatures$gtvMean <- 
+    do.call(rbind, lapply(allData, function(x) mean(x$gtv[,index])))
+imgFeatures$gtvMedian <- 
+    do.call(rbind, lapply(allData, function(x) median(x$gtv[,index])))
+imgFeatures$gtvSkewness <- 
+    do.call(rbind, lapply(allData, function(x) skewness(x$gtv[,index])))
+imgFeatures$gtvKurtosis <- 
+    do.call(rbind, lapply(allData, function(x) kurtosis(x$gtv[,index])))
+imgFeatures$gtvMax <- 
+    do.call(rbind, lapply(allData, function(x) max(x$gtv[,index])))
+
+##additional distances 
+imgFeatures$koordDistEuclNorm <- 
+    do.call(rbind, 
+            lapply(allData, function(x) dist(
+                rbind(x$gtvZero[,c("x","y","z")]*x$factor, 
+                    x$brainZero[,c("x","y","z")]*x$factor))))
+imgFeatures$koordDistManhattanNorm <- 
+    do.call(rbind, 
+            lapply(allData, function(x) dist(
+                rbind(x$gtvZero[,c("x","y","z")]*x$factor, 
+                    x$brainZero[,c("x","y","z")]*x$factor), 
+                method="manhattan")))
+
+## output
+mat <- do.call(cbind, imgFeatures)
+rownames(mat) <- unlist(do.call(rbind, allData)[,"name"])
+colnames(mat) <- c("gtvVolNorm", "gtvSD", "gtvRange", 
+                    "koordDistCanberraNorm", "gtvMean", 
+                    "gtvMedian","gtvSkewness", "gtvKurtosis", 
+                    "gtvMax", "koordDistEuclNorm", 
+                    "koordDistManhattanNorm")
+```
+
+
+## Process data
+
+To analyze tumor composition, image volumes are sampled repeatedly 
+(sampleData()). The retrieved data can be used to identify meaningful 
+cutoffs for further analyses (determineTissueClasses()).
+
+```{r}
+## sample data 
+allBrain <- list()
+for (i in 1:length(allData)) {
+    print(paste("Processing", allData[[i]]$name))
+    ## use larger values thaCn 5000
+    allBrain[[i]] <- sampleData(allData[[i]]$brain[,4], iterat=5000)
+    }
+
+##extract tissue class cutoffsC
+print("Collect cutoffs ...")
+collectedCutoffs <- determineTissueClasses(allBrain)
+```
+
+
+## Plot volumes and slices
+
+Now, whole volumes or subclasses can be visualized as volume (3D), 
+or plotted per slice (plotZSlice).  
+
+
+```{r}
+require(rgl)
+
+brain <- allData[[1]]$brain
+gtv <- allData[[1]]$gtv
+
+## Plot brain 
+brainSparse <- brain[seq(from=1, to=length(brain[,1]), by=150),]
+#plot3d(brainSparse$x, brainSparse$y, brainSparse$z, col="gray", 
+#axes=F, ylab="", xlab="", zlab="")
+
+##Plot brain and tumor center of origin
+coord <- getZeroKoord(brain, draw = F)
+#plot3d(coord$x, coord$y, coord$z, col="red", size=20, add=T)
+coordGTV <- getZeroKoord(gtv, draw = F, col="red", sparse = 50)
+#plot3d(coordGTV$x, coordGTV$y, coordGTV$z, col="red", size=20, add=T)
+
+## Plot first tissue class of GTV (3d)
+subclasses <- getSubclasses(gtv, collectedCutoffs[[1]])
+#plot3d(subclasses[[1]]$x, subclasses[[1]]$y, subclasses[[1]]$z,
+#col="royalblue", add=T)
+
+## Plot slices 
+data <- brain
+minx <- min(data$x, na.rm=T)
+maxx <- max(data$x, na.rm=T)
+miny <- min(data$y, na.rm=T)
+maxy <- max(data$y, na.rm=T)
+z <- median(data$z)
+## Plot brain
+plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, maxy=maxy)
+## Add Subclass within GTV
+plotZSlice(subclasses[[2]], z, col=greenred(100), add=T, minx=minx, 
+            maxx=maxx, miny=miny, maxy=maxy)
+```
+
+
+
