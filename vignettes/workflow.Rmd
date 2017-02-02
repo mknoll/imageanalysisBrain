@@ -248,9 +248,6 @@ z <- median(data$z)
 ## Plot brain
 imageanalysisBrain::plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, 
 maxy=maxy)
-## Plot again and add subclass
-imageanalysisBrain::plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, 
-maxy=maxy)
 ## Add Subclass within GTV
 imageanalysisBrain::plotZSlice(subclasses[[2]], z, col=gplots::greenred(100), 
 add=TRUE, minx=minx,maxx=maxx, miny=miny, maxy=maxy)

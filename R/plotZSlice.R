@@ -19,7 +19,6 @@
 #' @return return matrix containing the image corresponding to
 #' the selected z slice if ret is set to TRUE
 #' 
-#' @import gplots
 #' @import grDevices
 #' @import graphics
 #' 
