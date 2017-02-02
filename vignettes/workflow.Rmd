@@ -4,9 +4,9 @@ author: "Maximilian Knoll"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-%\VignetteIndexEntry{Vignette Title}
-%\VignetteEngine{knitr::rmarkdown}
-\usepackage[utf8]{inputenc} 
+    %\VignetteIndexEntry{Vignette Title}
+    %\VignetteEngine{knitr::rmarkdown}
+    \usepackage[utf8]{inputenc} 
 ---
 
 ```{r setup, include=FALSE}
@@ -42,8 +42,7 @@ scaling factor.
 
 
 ```{r}
-require(data.table)
-source("R/misc.R")
+options("BITSIZE"=10)
 
 ## Sample TCIA processed datasets
 samples <- c("TCGA-76-4931", "TCGA-76-6285")
@@ -53,13 +52,13 @@ allData <- list()
 for (i in 1:length(samples)) {
     print(paste("Loading", samples[i], ""))
     ## read GTV data
-    if (F) {
+    if (FALSE) {
         ##variant 1: separate columsn for x,y,z value
         gtvFile <- system.file("extdata", 
                                 paste(
                                     samples[i],"/","PXL_GTV.csv", sep=""), 
                                 package = "imageanalysisBrain")
-        gtv <- data.frame(fread(gtvFile, sep=",", header=T))
+        gtv <- data.frame(data.table::fread(gtvFile, sep=",", header=TRUE))
         gtv$COORD <- enc(gtv$x, gtv$y, gtv$z)
         } else {
             ##variant 2: all info encoded in COORD column
@@ -68,21 +67,22 @@ for (i in 1:length(samples)) {
                                         samples[i],"/","PXL_GTV_COORD.csv.gz", 
                                         sep=""),
                                     package = "imageanalysisBrain")
-            gtv <- read.table(gzfile(gtvFile), sep=",", header=T)
-            gtv$x <- decX(gtv$COORD)
-            gtv$y <- decY(gtv$COORD)
-            gtv$z <- decZ(gtv$COORD)
+            gtv <- read.table(gzfile(gtvFile), sep=",", header=TRUE)
+            gtv$x <- imageanalysisBrain::decX(gtv$COORD)
+            gtv$y <- imageanalysisBrain::decY(gtv$COORD)
+            gtv$z <- imageanalysisBrain::decZ(gtv$COORD)
             gtv <- gtv[,c(3:5,1:2)]
             }
     
     ## read Brain data
-    if (F) {
+    if (FALSE) {
         brainFile <- system.file("extdata", 
                                     paste(
-                                        samples[i],"/","PXL_BRAIN.csv", 
-                                        sep=""), 
+                                    samples[i],"/","PXL_BRAIN.csv", 
+                                    sep=""), 
                                     package = "imageanalysisBrain")
-        brain <- data.frame(fread(brainFile, sep=",", header=T))
+        brain <- data.frame(data.table::fread(brainFile, sep=",", 
+    header=TRUE))
         brain$COORD <- enc(brain$x, brain$y, brain$z)
         } else {
             ##variant 2: all info encoded in COORD column
@@ -93,23 +93,26 @@ for (i in 1:length(samples)) {
                                             "PXL_BRAIN_COORD.csv.gz", 
                                             sep=""), 
                                         package = "imageanalysisBrain")
-            brain <- read.table(gzfile(brainFile), sep=",", header=T)
-            brain$x <- decX(brain$COORD)
-            brain$y <- decY(brain$COORD)
-            brain$z <- decZ(brain$COORD)
+            brain <- read.table(gzfile(brainFile), sep=",", 
+        header=TRUE)
+            brain$x <- imageanalysisBrain::decX(brain$COORD)
+            brain$y <- imageanalysisBrain::decY(brain$COORD)
+            brain$z <- imageanalysisBrain::decZ(brain$COORD)
             brain <- brain[,c(3:5,1:2)]
             }
     
     ## calculate x scaling factor 
-    xvals <- getXRange(brain)
+    xvals <- imageanalysisBrain::getXRange(brain)
     xfactor <- 1/(xvals$xMax - xvals$xMin)
     
     ##Bind together and get Points of  Origins for Brain and Tumor Volumes
     allData[[i]] <- list(name=samples[i],
                         gtv=gtv,
                         brain=brain,
-                        gtvZero=getZeroKoord(gtv, draw = F),
-                        brainZero=getZeroKoord(brain, draw = F),
+                        gtvZero=imageanalysisBrain::getZeroKoord(gtv,
+            draw = FALSE),
+                        brainZero=imageanalysisBrain::getZeroKoord(brain, 
+            draw = FALSE),
                         factor=xfactor
                         )
     }
@@ -196,12 +199,13 @@ allBrain <- list()
 for (i in 1:length(allData)) {
     print(paste("Processing", allData[[i]]$name))
     ## use larger values thaCn 5000
-    allBrain[[i]] <- sampleData(allData[[i]]$brain[,4], iterat=5000)
+    allBrain[[i]] <- imageanalysisBrain::sampleData(allData[[i]]$brain[,4], 
+    iterat=5000)
     }
 
 ##extract tissue class cutoffsC
 print("Collect cutoffs ...")
-collectedCutoffs <- determineTissueClasses(allBrain)
+collectedCutoffs <- imageanalysisBrain::determineTissueClasses(allBrain)
 ```
 
 
@@ -212,7 +216,7 @@ or plotted per slice (plotZSlice).
 
 
 ```{r}
-require(rgl)
+#require(rgl)
 
 brain <- allData[[1]]$brain
 gtv <- allData[[1]]$gtv
@@ -223,28 +227,33 @@ brainSparse <- brain[seq(from=1, to=length(brain[,1]), by=150),]
 #axes=F, ylab="", xlab="", zlab="")
 
 ##Plot brain and tumor center of origin
-coord <- getZeroKoord(brain, draw = F)
+coord <- imageanalysisBrain::getZeroKoord(brain, draw = FALSE)
 #plot3d(coord$x, coord$y, coord$z, col="red", size=20, add=T)
-coordGTV <- getZeroKoord(gtv, draw = F, col="red", sparse = 50)
+coordGTV <- imageanalysisBrain::getZeroKoord(gtv, draw = FALSE, col="red",
+sparse = 50)
 #plot3d(coordGTV$x, coordGTV$y, coordGTV$z, col="red", size=20, add=T)
 
 ## Plot first tissue class of GTV (3d)
-subclasses <- getSubclasses(gtv, collectedCutoffs[[1]])
+subclasses <- imageanalysisBrain::getSubclasses(gtv, collectedCutoffs[[2]])
 #plot3d(subclasses[[1]]$x, subclasses[[1]]$y, subclasses[[1]]$z,
 #col="royalblue", add=T)
 
 ## Plot slices 
 data <- brain
-minx <- min(data$x, na.rm=T)
-maxx <- max(data$x, na.rm=T)
-miny <- min(data$y, na.rm=T)
-maxy <- max(data$y, na.rm=T)
+minx <- min(data$x, na.rm=TRUE)
+maxx <- max(data$x, na.rm=TRUE)
+miny <- min(data$y, na.rm=TRUE)
+maxy <- max(data$y, na.rm=TRUE)
 z <- median(data$z)
 ## Plot brain
-plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, maxy=maxy)
+imageanalysisBrain::plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, 
+maxy=maxy)
+## Plot again and add subclass
+imageanalysisBrain::plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, 
+maxy=maxy)
 ## Add Subclass within GTV
-plotZSlice(subclasses[[2]], z, col=greenred(100), add=T, minx=minx, 
-            maxx=maxx, miny=miny, maxy=maxy)
+imageanalysisBrain::plotZSlice(subclasses[[2]], z, col=gplots::greenred(100), 
+add=TRUE, minx=minx,maxx=maxx, miny=miny, maxy=maxy)
 ```
 
 

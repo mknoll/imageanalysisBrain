@@ -1,7 +1,7 @@
 Package: imageanalysisBrain
 Type: Package
 Title: Analysis of Brain Imaging Data
-Version: 0.98.0
+Version: 0.99.0
 Date: 2017-01-16
 Author: Maximilian Knoll
 Maintainer: Maximilian Knoll <m.knoll@dkfz.de>
@@ -20,6 +20,7 @@ Imports: doParallel,
 Suggests: knitr,
     rmarkdown,
     testthat
+VignetteBuilder: knitr
 biocViews: Software,
     BiomedicalInformatics,
     DataImport,
