@@ -16,11 +16,13 @@
 #' @param miny min Y value plotted
 #' @param maxy max Y value plotted
 #' 
-#' @return return matrix containing the image corresponding to
-#' the selected z slice if ret is set to TRUE
+#' @return returns an EBImage containing the image corresponding to
+#' the selected z slice if ret is set to TRUE. If no data is available
+#' for the selected z-slice, NULL is returned
 #' 
 #' @import grDevices
 #' @import graphics
+#' @import EBImage
 #' 
 #' @export
 #' 
@@ -59,13 +61,13 @@ plotZSlice <- function(data, z, index=4, ret=FALSE, add=FALSE,
     }
     
     if (dim(imgM)[[2]] == 0) {
-        return()
+        return(NULL)
     }
     
     ##plot image
     graphics::image(imgM, col=col, axes=FALSE, add=add, main=main)
     
     if (ret) {
-        return(imgM)
+        return(EBImage::Image(imgM))
     }
 }

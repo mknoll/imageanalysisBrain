@@ -1,38 +1,60 @@
-#' @title Retrieve minimal values
+#' @title Helper function for function approximation
 #' 
-#' @description 
-#' Retrieve minimal values, parameters are set outside (!)
+#' @description Combines density and approxfun. 
+#' WARNING: All data consistency checks have been removed!
 #' 
-#' @param data vector af values to analyze
-#' @param minV minimum value of data vector (performance)
-#' @param maxV maximim value of data vector (performance) 
-#' @param delta steps to analyze the resulting fitted fun 
+#' @param x data to approximate fun for
+#' @param length of x 
+#' @param minV minimum value of x
+#' @param maxV maximum value of x
 #' 
-#' @return list, containing a data.frame with the columns 
-#' key and val (minima).
-#' 
-#' @import stats
-#' 
-#' @export
+#' @return Function approximating the initial data
 #' 
 #' @examples
 #' data <- rnorm(100)
 #' minV <- min(data)
 #' maxV <- max(data)
-#' extrFast2(data, minV, maxV, 1)
-extrFast2 <- function(data, minV, maxV, delta) {
-    dens <- stats::density(data, na.rm=TRUE)
-    df <- stats::approxfun(dens)
-    xVal <- seq(from=minV, to=maxV, by=delta)
-    d1 <- diff(df(xVal))
-    
-    posD1Min <- c()
-    for (j in 2:length(d1)) {
-        pos <- which(d1[j-1] < 0 & d1[j] > 0)
-        if (length(pos) == 1) {
-            posD1Min <- c(posD1Min, j)
-        }
-    }
-    return (list(minima=data.frame(key=xVal[posD1Min],
-                                    val=df(xVal[posD1Min]))))
+#' n <- length(data)
+#' fitDensityFunGetX(data, n, minV, maxV)
+fitDensityFunGetX <- function(x, N, minV, maxV) {
+    bw <- 0.9 * .Call(stats:::C_cov, x, NULL, 5, FALSE)^0.5 * N^(-0.2)
+    c1 <- 3*bw
+    from <- minV - c1
+    to   <- maxV + c1
+    c1 <- c1+bw
+    lo <- from - c1
+    up <- to + c1
+    y <- .Call(stats:::C_BinDist, x, rep_len(1/N, N), lo, up, 512) 
+    kords <- seq.int(0, 2*(up-lo), length.out = 1024)
+    kords[(514):(1024)] <- -kords[512:2]
+    kords <- dnorm(kords, sd = bw)
+    kords <- fft( fft(y)* Conj(fft(kords)), inverse=TRUE)
+    kords <- pmax.int(0, Re(kords)[1L:512]/512)
+    xords <- seq.int(lo, up, length.out = 512)
+    x <- seq.int(from, to, length.out = 512)
+    y <- .Call(stats:::C_Approx, xords, kords, x, 1, NA, NA, 0)
+    function(v) stats:::.approxfun(x,y,v,1,NA,NA,0)        
 }
+
+fitDensityFunGetXVals <- function(x, N, minV, maxV,v ) {
+    bw <- 0.9 * .Call(stats:::C_cov, x, NULL, 5, FALSE)^0.5 * N^(-0.2)
+    c1 <- 3*bw
+    from <- minV - c1
+    to   <- maxV + c1
+    c1 <- c1+bw
+    lo <- from - c1
+    up <- to + c1
+    y <- .Call(stats:::C_BinDist, x, rep_len(1/N, N), lo, up, 512) 
+    kords <- seq.int(0, 2*(up-lo), length.out = 1024)
+    kords[(514):(1024)] <- -kords[512:2]
+    kords <- dnorm(kords, sd = bw)
+    kords <- fft( fft(y)* Conj(fft(kords)), inverse=TRUE)
+    kords <- pmax.int(0, Re(kords)[1L:512]/512)
+    xords <- seq.int(lo, up, length.out = 512)
+    x <- seq.int(from, to, length.out = 512)
+    y <- .Call(stats:::C_Approx, xords, kords, x, 1, NA, NA, 0)
+    stats:::.approxfun(x,y,v,1,NA,NA,0)        
+}
+
+
+

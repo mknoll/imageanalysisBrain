@@ -16,8 +16,8 @@ options("BITSIZE"=10)
 #' @export
 #' 
 #' @examples
-#' enc(1,2,3)
-enc <- function(x,y,z) {
+#' encodeXYZToCOORD(1,2,3)
+encodeXYZToCOORD <- function(x,y,z) {
     bitwShiftL(bitwShiftL(x,getOption("BITSIZE"))+y,getOption("BITSIZE"))+z
 }
 
@@ -34,8 +34,8 @@ enc <- function(x,y,z) {
 #' @export
 #' 
 #' @examples
-#' dec(1050627)
-dec <- function(val) {
+#' decodeCOORDtoXYZ(1050627)
+decodeCOORDtoXYZ <- function(val) {
     c(
         bitwShiftR(val, 2*getOption("BITSIZE")),
         bitwShiftR(val, getOption("BITSIZE"))-
@@ -63,7 +63,7 @@ dec <- function(val) {
 #' 
 #' @examples
 #' decX(1050627)
-decX <- function(val) {
+getXFromCOORD <- function(val) {
     bitwShiftR(val, 2*getOption("BITSIZE"))
 }
 
@@ -81,7 +81,7 @@ decX <- function(val) {
 #' 
 #' @examples
 #' decY(1050627)
-decY <- function(val) {
+getYFromCOORD <- function(val) {
     bitwShiftR(val, getOption("BITSIZE"))-
         bitwShiftL(bitwShiftR(val, 2*getOption("BITSIZE")),
                     getOption("BITSIZE"))
@@ -101,7 +101,7 @@ decY <- function(val) {
 #' 
 #' @examples
 #' decZ(1050627)
-decZ <- function(val) {
+getZFromCOORD <- function(val) {
     val-bitwShiftL((
         bitwShiftL(
             bitwShiftR(val, 2*getOption("BITSIZE")), 
@@ -110,6 +110,12 @@ decZ <- function(val) {
             bitwShiftL(bitwShiftR(val, 2*getOption("BITSIZE")),
                         getOption("BITSIZE"))
     ),getOption("BITSIZE"))
+}
+
+
+
+
+getEBImage <- function() {
 }
 
 

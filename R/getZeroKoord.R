@@ -27,6 +27,9 @@
 #' getZeroKoord(data, 1)
 getZeroKoord <- function(data, sparse=500, draw=FALSE, col="yellow", 
                         drawsteps=15) {
+    ## cgheck for COORD vector
+    ## test for options BITSIZE
+    
     #print(paste("Sparse, by=", steps))
     # select only a subset of available voxels
     brainSparse <- data[seq(from=1, to=length(data[,1]), by=sparse),]

@@ -4,7 +4,7 @@
 \alias{sampleData}
 \title{Sample data}
 \usage{
-sampleData(data, proportion = 0.001, iterat = 5e+05, test = FALSE)
+sampleData(data, proportion = 1.001, iterat = 5e+05, delta = 100)
 }
 \arguments{
 \item{data}{vector of values to analyze}
@@ -14,8 +14,6 @@ sampleData(data, proportion = 0.001, iterat = 5e+05, test = FALSE)
 is mutiplied by 10}
 
 \item{iterat}{number of sample drawings}
-
-\item{test}{dummy, needed to pass R checks :-(}
 }
 \value{
 data.frame containing all identified minima
@@ -25,6 +23,6 @@ Fast alternative for extr(), returning only minima
 and using parallelization
 }
 \examples{
-sampleData(1:1000, 1, 10, test=TRUE)
+sampleData(1:1000, 1, 10)
 }
 

@@ -5,7 +5,7 @@ Version: 0.99.1
 Date: 2017-01-16
 Author: Maximilian Knoll
 Maintainer: Maximilian Knoll <m.knoll@dkfz.de>
-Description: Extracting imaging features and separating MRI data into different tissue classes. 
+Description: This package allows to process volumetric data from brain MRI/CT scans. An heuristic using skull dimensions is implemented to determine comparable points of origins for different patients. Imaging features (e.g. skewness, distances between a given tumor volume and the brain center of origin) can be extracted. For MRI data, a method for identification of tissue classes (e.g. hypo-,iso-,hyperintense) is provided and can be used for intra-patient normalization of data. 
 License: GPL-3
 RoxygenNote: 5.0.1
 Imports: doParallel,
@@ -14,7 +14,6 @@ Imports: doParallel,
     grDevices,
     parallel,
     plyr,
-    rgl,
     stats
 Suggests: knitr,
     rmarkdown,

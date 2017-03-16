@@ -24,18 +24,20 @@ getSubclasses <- function(data, split, index=4) {
         classes[[1]] <- data[which(data[,index] < split[1,"key"]),]
         classes[[2]] <- data[which(data[,index] >= split[1,"key"]),]
     } else {
+        
         ## Mehrere minima
-        for (j in 1:(length(split[,1]))) {
-            # erstes
+        for (j in 1:length(split[,1])) {
             if (j == 1) {
-                classes[[j]] <- data[which(data[,index] <= split[j, "key"]),]
-            } else if (j <= length(split[,1])-1) {
-                classes[[j]] <- 
-                    data[which(data[,index] <= split[j+1, "key"] & 
-                                    data[,index]> split[j, "key"]),] 
+                classes[[length(classes)+1]] <- data[which(data[,index] <= split[j, "key"]),]
+                print(dim(classes[[length(classes)]]))
             } else {
-                classes[[j]] <- 
-                    data[which(data[,index] > split[j, "key"]),] 
+                classes[[length(classes)+1]] <- data[which(data[,index] > split[j-1, "key"] & 
+                                                           data[,index] <= split[j, "key"]),]
+                print(dim(classes[[length(classes)]]))
+            }
+            if (j == length(split[,1])) {
+                classes[[length(classes)+1]] <- data[which(data[,index] >= split[j, "key"]),]
+                print(dim(classes[[length(classes)]]))
             }
         }
     }
