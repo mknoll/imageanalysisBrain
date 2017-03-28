@@ -2,9 +2,21 @@
 % Please edit documentation in R/calcXScalingFactor.R
 \name{calcXScalingFactor}
 \alias{calcXScalingFactor}
-\title{Calculate a scaling factor 
-in x dimension}
+\title{Calculate a scaling factor to allow inter-patient comparisons}
 \usage{
+calcXScalingFactor(img)
+}
+\value{
+list containg the factor and a version
+}
+\description{
+Calculates a scaling factor which normalizes the 
+biparietal distance to 1
+}
+\examples{
+data <- data.frame(x=1:10, y=1:10, 
+z=c(rep(2,5), rep(3,5)), val=rnorm(100))
+img <- getImage(data)
 calcXScalingFactor(img)
 }
 

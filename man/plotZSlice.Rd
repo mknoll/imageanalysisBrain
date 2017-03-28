@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotZSlice.R
 \name{plotZSlice}
 \alias{plotZSlice}
-\title{Plot z slice}
+\title{Plot z slice of brainImage instance}
 \usage{
 plotZSlice(data, z, index = 4, ret = FALSE, add = FALSE,
   col = grDevices::gray.colors(1024), main = "", dimV = NULL)
@@ -30,8 +30,11 @@ plotZSlice(data, z, index = 4, ret = FALSE, add = FALSE,
 
 \item{maxy}{max Y value plotted}
 }
+\value{
+list of min/max values used for this plot
+}
 \description{
-Plot given z slice for a dataset
+Plot given z slice of brainImage instance
 }
 \examples{
 data <- data.frame(x=rep(1:10, 5), 

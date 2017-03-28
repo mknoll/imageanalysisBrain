@@ -1,8 +1,8 @@
 
-#' An S4 Helper class to allow NULL values
+# An S4 Helper class to allow NULL values
 setClassUnion("numericOrNULL", c("numeric", "NULL"))
 
-#' An S4 Helper class to allow NULL values
+# An S4 Helper class to allow NULL values
 setClassUnion("dfOrNULL", c("data.frame", "NULL"))
 
 #' An S4 class representing an brain image
@@ -15,7 +15,7 @@ setClassUnion("dfOrNULL", c("data.frame", "NULL"))
 #' 10 would be enough for dimension values up to 10^2 
 #' @slot coords Encoded koordinates, eases set operations
 #' when manipulating volumes
-#' @measurements actually sored measurements for this
+#' @slot measurements actually sored measurements for this
 #' object (see: values: Value)
 #' @slot origin center of origin of this volume
 #' @slot originVersion method to calculate the origin
@@ -125,3 +125,42 @@ setMethod("initialize", "brainImage",
               cat("\rCreated new brainImage instance :)                  ")
               .Object
           })
+
+
+# Is there something linke lombok for R to avoid creating getters manually?
+getCoords <- function(img) {
+  checkClass(img)
+  img@coords
+}
+
+getMeasurements <- function(img) {
+  checkClass(img)
+  img@measurements
+}
+
+getXFactor <- function(img) {
+  checkClass(img)
+  img@xfactor
+}
+
+getOrigin <- function(img) {
+  checkClass(img)
+  img@origin
+}
+
+getThresholds <- function(img) {
+  checkClass(img)
+  img@selectedThresholds
+}
+
+setThresholds <- function(img, thresholds) {
+  ##TODO: check consistency
+  checkClass(img)
+  img@selectedThresholds <- thresholds
+}
+
+checkClass <- function(img) {
+  if (class(img) != "brainImage") {
+    stop("Invalid parameter! Not a brainImage instance!")
+  }
+}

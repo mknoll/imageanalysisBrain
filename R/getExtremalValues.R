@@ -1,5 +1,5 @@
 #' @title 
-#' Find extremal values
+#' Find extremal values (min+max).
 #' 
 #' @description
 #' Finds minima and maxima.

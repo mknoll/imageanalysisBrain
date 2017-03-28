@@ -1,8 +1,8 @@
 #' @title
-#' Plot z slice
+#' Plot z slice of brainImage instance
 #'  
 #' @description
-#' Plot given z slice for a dataset
+#' Plot given z slice of brainImage instance
 #' 
 #' @param data data.frame with x,y,z,val columns
 #' @param z selected z slice to plot
@@ -15,6 +15,8 @@
 #' @param maxx max X-value plotted
 #' @param miny min Y value plotted
 #' @param maxy max Y value plotted
+#' 
+#' @return list of min/max values used for this plot
 #' 
 #' @import grDevices
 #' @import graphics

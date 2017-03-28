@@ -1,4 +1,4 @@
-#' @title Helper function for function approximation
+#' @title Helper function for density function approximation 
 #' 
 #' @description Combines density and approxfun. 
 #' WARNING: All data consistency checks have been removed!

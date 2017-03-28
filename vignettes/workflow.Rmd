@@ -115,15 +115,15 @@ The used heuristics are:
 imgFeatures <- list()
 
 # GTV in relation to whole Brain Volume
-imgFeatures$gtvVolNorm <- length(gtvImage@coords)/length(brainImage@coords)
+imgFeatures$gtvVolNorm <- length(getCoords(gtvImage))/length(getCoords(brainImage))
 
 # Only GTV dependent measurements
-imgFeatures$gtvSD <- sd(gtvImage@measurements)
+imgFeatures$gtvSD <- sd(getMeasurements(gtvImage))
 
 #Distances between points of origins: GTv / Brain
 imgFeatures$koordDistCanberraNorm <- dist(
-    rbind(gtvImage@origin*brainImage@xfactor, 
-            brainImage@origin*brainImage@xfactor),
+    rbind(getOrigin(gtvImage)*getXFactor(brainImage), 
+            getOrigin(brainImage)*getXFactor(brainImage)),
     method="canberra")
 ```
 
@@ -152,8 +152,8 @@ cutoffs.
 ## sample data 
 ## takes approximately 40 sek for 100.000 iterations with 7 running threads
 ## on a i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
-brainImage@selectedThresholds <- 
-    imageanalysisBrain::sampleData(brainImage@measurements, iterat=10000)
+setThresholds(img,
+    imageanalysisBrain::sampleData(getMeasurements(brainImage), iterat=10000))
 ```
 
 The complete dataset consisting of whole brain and tumor data can 
@@ -164,10 +164,10 @@ These can then be easily plotted (2D, 3D).
 ```{r}
 ##TODO: check if no subclasses could be identified....
 subclassesGTV <- imageanalysisBrain::getSubclasses(gtvImage, 
-    brainImage@selectedThresholds)
+    getThresholds(brainImage))
 
 subclassesBrain <- imageanalysisBrain::getSubclasses(brainImage, 
-    brainImage@selectedThresholds)
+    getThresholds(brainImage))
 ```
 ## Plot brain / tumor slices
 
@@ -189,7 +189,7 @@ dim <- imageanalysisBrain::plotZSlice(brainImage, 10, dim=NULL)
 
 ## ... and add the GTV slice 
 imageanalysisBrain::plotZSlice(gtvImage, 10, 
-    dim=dim, add=T, col=gplots::bluered(1024)) 
+    dim=dim, add=TRUE, col=gplots::bluered(1024)) 
 ```
 
 Showing only subclass-slices works similar:

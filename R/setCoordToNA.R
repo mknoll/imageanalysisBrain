@@ -1,7 +1,18 @@
+#' @title Set selected coordinates to NA
+#' 
+#' @description
+#' When creating subclass images, values not belonging
+#' to the respective class can be set to NA with this function
+#' 
+#' @param data brainImage instance to manipulate
+#' @param sel vector of positions (sequential) which
+#' should be set to NA
+#' 
+#' @return brainImage instance with adapted values
 setCoordToNA <- function(data, sel) {
     ## Manipulate image
     coords <- data@coords[sel]
-    coordsXYZ <- imageanalysisBrain::enc2dec(coords)[,1:3]
+    coordsXYZ <- imageanalysisBrain::decodeCOORD(coords)
     dimV <- dim(data@.Data)
     #(slice-1)*dimV[1]*dimV[2] + dimV[1]*(col-1) + row
     coordsXYZ$pos <- (coordsXYZ$z-1)*dimV[1]*dimV[2] + dimV[1]*(coordsXYZ$y-1) + coordsXYZ$x

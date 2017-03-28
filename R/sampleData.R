@@ -60,7 +60,6 @@ sampleData <- function(data, proportion=0.001, iterat=500000, delta=1) {
     allMins <- unlist(allMin)
 
     ##get maxima of allMins
-    #TODO: adjust getExtremalValues
     max <- getExtremalValues(allMins, zeichne = FALSE, delta = 10)$maxima 
 
     doParallel::stopImplicitCluster()
