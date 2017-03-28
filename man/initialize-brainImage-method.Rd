@@ -8,6 +8,15 @@
 \S4method{initialize}{brainImage}(.Object, values = data.frame,
   filename = character, coordBIT = numeric, ...)
 }
+\arguments{
+\item{.Object}{brainImage object}
+
+\item{values}{data.frame containing x,y,z/Coord + values}
+
+\item{filename}{filename of the data (values)}
+
+\item{coordBIT}{bit size for each number to calculate COORDs}
+}
 \value{
 a new brainImage instance
 }

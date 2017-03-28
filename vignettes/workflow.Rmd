@@ -48,7 +48,7 @@ To ease analysis of imaging data, a new class is introducted: brainImage.
 This class inherits from the EBImage::Image class.
 
 ```{r}
-source("R/brainImageClass.R")
+library(imageanalysisBrain)
 ```
 
 For demonstration purposes, two brain datasets are included in this package,
@@ -115,15 +115,16 @@ The used heuristics are:
 imgFeatures <- list()
 
 # GTV in relation to whole Brain Volume
-imgFeatures$gtvVolNorm <- length(getCoords(gtvImage))/length(getCoords(brainImage))
+imgFeatures$gtvVolNorm <- length(imageanalysisBrain::getCoords(gtvImage))/
+    length(imageanalysisBrain::getCoords(brainImage))
 
 # Only GTV dependent measurements
-imgFeatures$gtvSD <- sd(getMeasurements(gtvImage))
+imgFeatures$gtvSD <- sd(imageanalysisBrain::getMeasurements(gtvImage))
 
 #Distances between points of origins: GTv / Brain
 imgFeatures$koordDistCanberraNorm <- dist(
-    rbind(getOrigin(gtvImage)*getXFactor(brainImage), 
-            getOrigin(brainImage)*getXFactor(brainImage)),
+    rbind(imageanalysisBrain::getOrigin(gtvImage)*imageanalysisBrain::getXFactor(brainImage), 
+            imageanalysisBrain::getOrigin(brainImage)*imageanalysisBrain::getXFactor(brainImage)),
     method="canberra")
 ```
 
@@ -152,7 +153,7 @@ cutoffs.
 ## sample data 
 ## takes approximately 40 sek for 100.000 iterations with 7 running threads
 ## on a i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
-setThresholds(img,
+setThresholds(brainImage,
     imageanalysisBrain::sampleData(getMeasurements(brainImage), iterat=10000))
 ```
 
@@ -162,12 +163,12 @@ identified cutoffs.
 These can then be easily plotted (2D, 3D).
 
 ```{r}
-##TODO: check if no subclasses could be identified....
+#TODO: Check for >= 1 subclasses ... 
 subclassesGTV <- imageanalysisBrain::getSubclasses(gtvImage, 
-    getThresholds(brainImage))
+    imageanalysisBrain::getThresholds(brainImage))
 
 subclassesBrain <- imageanalysisBrain::getSubclasses(brainImage, 
-    getThresholds(brainImage))
+    imageanalysisBrain::getThresholds(brainImage))
 ```
 ## Plot brain / tumor slices
 

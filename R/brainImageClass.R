@@ -29,6 +29,9 @@ setClassUnion("dfOrNULL", c("data.frame", "NULL"))
 #' @slot selectedThresholds thresholds, which might 
 #' be useful when analyzing different tissue classes
 #' in MRI data
+#' 
+#' @name brainImage-class
+#' @exportClass brainImage
 brainImage <- setClass("brainImage",
                        slots=c(values="data.frame", #sequencial data storage
                                filename="character",
@@ -48,6 +51,11 @@ brainImage <- setClass("brainImage",
 #' @title Constructor brainImage
 #' 
 #' @description Constructor for new brainImage instances
+#'
+#' @param .Object brainImage object
+#' @param values data.frame containing x,y,z/Coord + values
+#' @param filename filename of the data (values)
+#' @param coordBIT bit size for each number to calculate COORDs
 #'
 #' @return a new brainImage instance
 #'
@@ -128,37 +136,44 @@ setMethod("initialize", "brainImage",
 
 
 # Is there something linke lombok for R to avoid creating getters manually?
+#' @export
 getCoords <- function(img) {
   checkClass(img)
   img@coords
 }
 
+#' @export
 getMeasurements <- function(img) {
   checkClass(img)
   img@measurements
 }
 
+#' @export
 getXFactor <- function(img) {
   checkClass(img)
   img@xfactor
 }
 
+#' @export
 getOrigin <- function(img) {
   checkClass(img)
   img@origin
 }
 
+#' @export
 getThresholds <- function(img) {
   checkClass(img)
   img@selectedThresholds
 }
 
+#' @export
 setThresholds <- function(img, thresholds) {
   ##TODO: check consistency
   checkClass(img)
   img@selectedThresholds <- thresholds
 }
 
+#' @export
 checkClass <- function(img) {
   if (class(img) != "brainImage") {
     stop("Invalid parameter! Not a brainImage instance!")
