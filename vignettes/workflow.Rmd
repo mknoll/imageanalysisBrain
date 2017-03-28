@@ -153,7 +153,7 @@ cutoffs.
 ## sample data 
 ## takes approximately 40 sek for 100.000 iterations with 7 running threads
 ## on a i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
-setThresholds(brainImage,
+brainImage <- setThresholds(brainImage,
     imageanalysisBrain::sampleData(getMeasurements(brainImage), iterat=10000))
 ```
 

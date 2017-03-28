@@ -171,6 +171,7 @@ setThresholds <- function(img, thresholds) {
   ##TODO: check consistency
   checkClass(img)
   img@selectedThresholds <- thresholds
+  return(img)
 }
 
 #' @export
