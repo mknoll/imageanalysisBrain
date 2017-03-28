@@ -62,7 +62,7 @@ decodeCOORDtoXYZ <- function(val) {
 #' @export
 #' 
 #' @examples
-#' decX(1050627)
+#' getXFromCOORD(1050627)
 getXFromCOORD <- function(val) {
     bitwShiftR(val, 2*getOption("BITSIZE"))
 }
@@ -80,7 +80,7 @@ getXFromCOORD <- function(val) {
 #' @export
 #' 
 #' @examples
-#' decY(1050627)
+#' getYFromCOORD(1050627)
 getYFromCOORD <- function(val) {
     bitwShiftR(val, getOption("BITSIZE"))-
         bitwShiftL(bitwShiftR(val, 2*getOption("BITSIZE")),
@@ -100,7 +100,7 @@ getYFromCOORD <- function(val) {
 #' @export
 #' 
 #' @examples
-#' decZ(1050627)
+#' getZFromCOORD(1050627)
 getZFromCOORD <- function(val) {
     val-bitwShiftL((
         bitwShiftL(

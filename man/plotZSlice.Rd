@@ -22,13 +22,8 @@ plotZSlice(data, z, index = 4, ret = FALSE, add = FALSE,
 
 \item{main}{main}
 
-\item{minx}{min X-value plotted}
-
-\item{maxx}{max X-value plotted}
-
-\item{miny}{min Y value plotted}
-
-\item{maxy}{max Y value plotted}
+\item{dimV}{dimension values: which are should be plotted?
+min/max X,Y values}
 }
 \value{
 list of min/max values used for this plot
@@ -40,6 +35,7 @@ Plot given z slice of brainImage instance
 data <- data.frame(x=rep(1:10, 5), 
 y=c(rep(1,10),rep(2,10),rep(3,10),rep(4,10),rep(5, 10)), 
 z=rep(1, 50), rnorm(50))
-plotZSlice(data, 1)
+img <- new("brainImage", data, "test", 10)
+plotZSlice(img, 1)
 }
 

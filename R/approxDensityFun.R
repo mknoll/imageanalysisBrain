@@ -4,11 +4,13 @@
 #' WARNING: All data consistency checks have been removed!
 #' 
 #' @param x data to approximate fun for
-#' @param length of x 
+#' @param N length of x 
 #' @param minV minimum value of x
 #' @param maxV maximum value of x
 #' 
 #' @return Function approximating the initial data
+#'
+#' @export
 #' 
 #' @examples
 #' data <- rnorm(100)

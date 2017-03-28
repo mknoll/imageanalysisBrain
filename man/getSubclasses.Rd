@@ -10,8 +10,6 @@ getSubclasses(data, split)
 \item{data}{data.frame of volume to split}
 
 \item{split}{data.frame (key, val) with values to split at (keys)}
-
-\item{index}{column index with values in the volume dataset}
 }
 \value{
 returns a list where all list elements contain 
@@ -24,6 +22,7 @@ Splits a given dataset into subclasses.
 data <- data.frame(x=rep(1:10, 5), 
 y=c(rep(1,10),rep(2,10),rep(3,10),rep(4,10),rep(5, 10)), 
 z=rep(1, 50), val=rnorm(50))
-getSubclasses(data, data.frame(key=median(data$val), val=NA))
+img <- new("brainImage", data, "test", 10)
+getSubclasses(img, data.frame(key=median(data$val), val=NA))
 }
 

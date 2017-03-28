@@ -11,10 +11,8 @@
 #' @param add add to existing plot
 #' @param col color palette
 #' @param main main
-#' @param minx min X-value plotted
-#' @param maxx max X-value plotted
-#' @param miny min Y value plotted
-#' @param maxy max Y value plotted
+#' @param dimV dimension values: which are should be plotted?
+#' min/max X,Y values
 #' 
 #' @return list of min/max values used for this plot
 #' 
@@ -28,7 +26,8 @@
 #' data <- data.frame(x=rep(1:10, 5), 
 #' y=c(rep(1,10),rep(2,10),rep(3,10),rep(4,10),rep(5, 10)), 
 #' z=rep(1, 50), rnorm(50))
-#' plotZSlice(data, 1)
+#' img <- new("brainImage", data, "test", 10)
+#' plotZSlice(img, 1)
 plotZSlice <- function(data, z, index=4, ret=FALSE, add=FALSE, 
                         col=grDevices::gray.colors(1024), main="", 
                         dimV=NULL)  {

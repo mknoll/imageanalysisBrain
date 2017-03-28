@@ -12,7 +12,7 @@
 setCoordToNA <- function(data, sel) {
     ## Manipulate image
     coords <- data@coords[sel]
-    coordsXYZ <- imageanalysisBrain::decodeCOORD(coords)
+    coordsXYZ <- imageanalysisBrain::decodeCOORDToXYZDf(coords)
     dimV <- dim(data@.Data)
     #(slice-1)*dimV[1]*dimV[2] + dimV[1]*(col-1) + row
     coordsXYZ$pos <- (coordsXYZ$z-1)*dimV[1]*dimV[2] + dimV[1]*(coordsXYZ$y-1) + coordsXYZ$x

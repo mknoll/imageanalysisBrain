@@ -16,6 +16,6 @@ decoded z coordinate
 Extracts z values from encoded number
 }
 \examples{
-decZ(1050627)
+getZFromCOORD(1050627)
 }
 

@@ -6,6 +6,9 @@
 \usage{
 calcXScalingFactor(img)
 }
+\arguments{
+\item{img}{brainImage instance}
+}
 \value{
 list containg the factor and a version
 }
@@ -14,9 +17,10 @@ Calculates a scaling factor which normalizes the
 biparietal distance to 1
 }
 \examples{
+options("BITSIZE"=10)
 data <- data.frame(x=1:10, y=1:10, 
 z=c(rep(2,5), rep(3,5)), val=rnorm(100))
-img <- getImage(data)
+img <- new("brainImage", data, "test", 10)
 calcXScalingFactor(img)
 }
 

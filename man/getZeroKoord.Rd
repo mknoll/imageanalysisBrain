@@ -31,7 +31,7 @@ first selecting the
 data <- data.frame(x=rep(1:10, 5), 
 y=c(rep(1,10),rep(2,10),rep(3,10),rep(4,10),rep(5, 10)), 
 z=rep(1, 50), rnorm(50))
-data$COORD <- enc(data$x, data$y, data$z)
+data$COORD <- encodeXYZToCOORD(data$x, data$y, data$z)
 getZeroKoord(data, 1)
 }
 

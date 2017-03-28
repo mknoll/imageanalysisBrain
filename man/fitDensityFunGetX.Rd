@@ -9,11 +9,11 @@ fitDensityFunGetX(x, N, minV, maxV)
 \arguments{
 \item{x}{data to approximate fun for}
 
+\item{N}{length of x}
+
 \item{minV}{minimum value of x}
 
 \item{maxV}{maximum value of x}
-
-\item{length}{of x}
 }
 \value{
 Function approximating the initial data

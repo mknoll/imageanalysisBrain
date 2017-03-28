@@ -14,6 +14,8 @@ sampleData(data, proportion = 0.001, iterat = 5e+05, delta = 1)
 is mutiplied by 10}
 
 \item{iterat}{number of sample drawings}
+
+\item{delta}{width between two points to differentiate}
 }
 \value{
 data.frame containing all identified minima

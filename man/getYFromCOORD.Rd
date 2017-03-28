@@ -16,6 +16,6 @@ decoded y coordinate
 Extracts y values from encoded number
 }
 \examples{
-decY(1050627)
+getYFromCOORD(1050627)
 }
 

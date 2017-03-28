@@ -9,7 +9,8 @@
 #' (proportions*length(data)), if below 10, then the value 
 #' is mutiplied by 10
 #' @param iterat number of sample drawings 
-#' 
+#' @param delta width between two points to differentiate 
+#'
 #' @return data.frame containing all identified minima
 #' 
 #' @import plyr

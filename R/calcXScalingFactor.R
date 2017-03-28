@@ -4,15 +4,18 @@
 #' @description 
 #' Calculates a scaling factor which normalizes the 
 #' biparietal distance to 1
+#'
+#' @param img brainImage instance
 #' 
 #' @return list containg the factor and a version
 #' 
 #' @export
 #' 
 #' @examples
+#' options("BITSIZE"=10)
 #' data <- data.frame(x=1:10, y=1:10, 
 #' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
-#' img <- getImage(data)
+#' img <- new("brainImage", data, "test", 10)
 #' calcXScalingFactor(img)
 calcXScalingFactor <- function(img) {
     if (class(img) != "brainImage") {

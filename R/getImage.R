@@ -17,7 +17,7 @@
 #' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
 #' getImage(data)
 getImage <- function(data) {
-    if (length(data[1,]) != 4) {
+    if (length(data[1,]) < 4) {
         stop("Invalid data.frame dimension!
 	Required: x,y,z,vals");
     }

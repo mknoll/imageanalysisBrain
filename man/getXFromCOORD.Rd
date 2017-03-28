@@ -16,6 +16,6 @@ decoded x coordinate
 Extracts x values from encoded number
 }
 \examples{
-decX(1050627)
+getXFromCOORD(1050627)
 }
 
