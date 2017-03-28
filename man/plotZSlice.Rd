@@ -5,8 +5,7 @@
 \title{Plot z slice}
 \usage{
 plotZSlice(data, z, index = 4, ret = FALSE, add = FALSE,
-  col = grDevices::gray.colors(1024), main = "", minx = NULL,
-  maxx = NULL, miny = NULL, maxy = NULL)
+  col = grDevices::gray.colors(1024), main = "", dimV = NULL)
 }
 \arguments{
 \item{data}{data.frame with x,y,z,val columns}
@@ -30,11 +29,6 @@ plotZSlice(data, z, index = 4, ret = FALSE, add = FALSE,
 \item{miny}{min Y value plotted}
 
 \item{maxy}{max Y value plotted}
-}
-\value{
-returns an EBImage containing the image corresponding to
-the selected z slice if ret is set to TRUE. If no data is available
-for the selected z-slice, NULL is returned
 }
 \description{
 Plot given z slice for a dataset

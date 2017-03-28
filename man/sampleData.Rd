@@ -4,7 +4,7 @@
 \alias{sampleData}
 \title{Sample data}
 \usage{
-sampleData(data, proportion = 1.001, iterat = 5e+05, delta = 100)
+sampleData(data, proportion = 0.001, iterat = 5e+05, delta = 1)
 }
 \arguments{
 \item{data}{vector of values to analyze}

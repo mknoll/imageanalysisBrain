@@ -4,7 +4,7 @@
 \alias{getSubclasses}
 \title{Extract Subclass data}
 \usage{
-getSubclasses(data, split, index = 4)
+getSubclasses(data, split)
 }
 \arguments{
 \item{data}{data.frame of volume to split}

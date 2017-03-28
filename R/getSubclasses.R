@@ -25,12 +25,10 @@ getSubclasses <- function(data, split) {
         if (j == 1) {
             cpy <- setCoordToNA(data, which(data@measurements <= split[j,"key"]))
             classImages[[length(classImages) + 1 ]] <- cpy
-            
         } else {
             cpy <- setCoordToNA(data, which(data@measurements > split[j-1,"key"] & 
                                                 data@measurements <= split[j,"key"]))
             classImages[[length(classImages) + 1 ]] <- cpy
-            
         }
         if (j == length(split[,1])) {
             cpy <- setCoordToNA(data, which(data@measurements > split[j,"key"]))

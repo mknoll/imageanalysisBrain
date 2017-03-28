@@ -4,12 +4,12 @@
 \alias{enc2dec}
 \title{Convert ENC to DEC}
 \usage{
-enc2dec(values, enc)
+enc2dec(enc)
 }
 \arguments{
-\item{values}{imaging values}
-
 \item{enc}{value, containing x,y,z, values}
+
+\item{values}{imaging values}
 }
 \value{
 data.frame with the decoded coordiantes

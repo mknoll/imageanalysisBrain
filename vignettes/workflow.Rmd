@@ -43,6 +43,7 @@ data, 10 is used.
 
 ```{r}
 options("BITSIZE"=10)
+source("R/brainImageClass.R")
 ```
 
 Two brain datasets are included in this package with their respective 
@@ -71,7 +72,7 @@ scaling factor.
 
 ```{r}
 ## calculate x scaling factor 
-brainImage <- calcXScalingFactor(brainImage)
+brainImage <- imageanalysisBrain::calcXScalingFactor(brainImage)
 ```
 
 
@@ -148,7 +149,7 @@ are neighboured by two larger local maxima.
 ## sample data 
 ## takes approximately 40 sek for 100.000 iterations with 7 running threads
 ## on a i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
-brainImage@selectedThresholds <- sampleData(brainImage@measurements, iterat=10000)
+brainImage@selectedThresholds <- imageanalysisBrain::sampleData(brainImage@measurements, iterat=10000)
 ```
 
 
@@ -158,9 +159,9 @@ These can then be easily plotted (2D, 3D).
 
 ```{r}
 ##TODO: check if no subclasses could be identified....
-subclassesGTV <- getSubclasses(gtvImage, brainImage@selectedThresholds)
+subclassesGTV <- imageanalysisBrain::getSubclasses(gtvImage, brainImage@selectedThresholds)
 
-subclassesBrain <- getSubclasses(brainImage, brainImage@selectedThresholds)
+subclassesBrain <- imageanalysisBrain::getSubclasses(brainImage, brainImage@selectedThresholds)
 ```
 
 
@@ -179,34 +180,16 @@ or overlap of images, an helper function can be used.
 
 ```{r}
 ##Plot brain Slice
-dim <- plotZSlice(brainImage, 10, dim=NULL) 
+dim <- imageanalysisBrain::plotZSlice(brainImage, 10, dim=NULL) 
 
 ## ... and add GTV slice 
-plotZSlice(gtvImage, 10, dim=dim, add=T, col=gplots::bluered(1024)) 
+imageanalysisBrain::plotZSlice(gtvImage, 10, dim=dim, add=T, col=gplots::bluered(1024)) 
 ```
-
 
 Showing only the identified subclass is just as easy (Brain):
 
 ```{r}
-##Plot brain
-dim <- plotZSlice(brainImage, 10, dim=NULL) 
-
-##Plot the first subclass (lowest intensity) proportion of the whole brain
-plotZSlice(subclassesBrain[[1]], z, dim, add=T, col=gplots::bluered(1024))
+##Plot first brain subclass
+image(subclassesBrain[[1]][,,10])
 ```
-
-and GTV:
-
-```{r}
-##Plot brain
-imageanalysisBrain::plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, 
-maxy=maxy)
-
-##Plot the second subclass as proportion of the GTV
-imageanalysisBrain::plotZSlice(subclassesGTV[[2]], z, minx=minx, maxx=maxx, miny=miny, 
-maxy=maxy, add=T, col=gplots::redgreen(1024))
-```
-
-
 

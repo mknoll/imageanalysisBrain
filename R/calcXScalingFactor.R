@@ -1,3 +1,7 @@
+#' @title Calculate a scaling factor 
+#' in x dimension
+#' 
+#' @export
 calcXScalingFactor <- function(img) {
     if (class(img) != "brainImage") {
         stop("Wrong argument! Not a brainImage instance!")

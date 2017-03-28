@@ -76,7 +76,7 @@ setMethod("initialize", "brainImage",
               .Object@measurements <- values[,4]
               .Object@values <- values
               cat("\rCreate Image instance ...              ")
-              .Object@image <- getImage(values)
+              .Object@image <- imageanalysisBrain::getImage(values)
               .Object@filename <- filename
               .Object@coordBIT <- coordBIT
               .Object@type <- colnames(values)[4]
@@ -88,7 +88,7 @@ setMethod("initialize", "brainImage",
               .Object@xfactorVersion <- NULL
               
               cat("\rCalculate ZeroCoordinates...         ")
-              zeroKoord <- getZeroKoord(values)
+              zeroKoord <- imageanalysisBrain::getZeroKoord(values)
               .Object@origin <- zeroKoord$vals[,c("x","y","z")]
               ## Keep track of method on how the origin was calculated
               .Object@originVersion <- zeroKoord$version

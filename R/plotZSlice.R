@@ -29,20 +29,20 @@
 #' plotZSlice(data, 1)
 plotZSlice <- function(data, z, index=4, ret=FALSE, add=FALSE, 
                         col=grDevices::gray.colors(1024), main="", 
-                        dim=NULL)  {
+                        dimV=NULL)  {
     subD <- data@values[which(data@values$z == z), ]
     #subD <- data[which(data$z == z),]
     ## build image matrix
-    if (is.null(dim)) {
+    if (is.null(dimV)) {
         minx <- min(subD$x, na.rm=TRUE)
         maxx <- max(subD$x, na.rm=TRUE)
         miny <- min(subD$y, na.rm=TRUE)
         maxy <- max(subD$y, na.rm=TRUE)
     } else {
-        minx=dim$minx
-        miny=dim$miny
-        maxx=dim$maxx
-        maxy=dim$maxy
+        minx=dimV$minx
+        miny=dimV$miny
+        maxx=dimV$maxx
+        maxy=dimV$maxy
     }
     
     imgM <- matrix(ncol=((maxx-minx)+1), nrow=((maxy-miny)+1), NA)
