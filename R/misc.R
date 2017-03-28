@@ -113,9 +113,3 @@ getZFromCOORD <- function(val) {
 }
 
 
-
-
-getEBImage <- function() {
-}
-
-

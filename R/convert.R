@@ -15,11 +15,10 @@
 #' val<-c(342,221,123)
 #' options("BITSIZE"=10)
 #' enc2dec(val,enc)
-enc2dec <- function(values, enc) {
-    df <- data.frame(x=decX(enc), 
-                    y=decY(enc), 
-                    z=decZ(enc), 
-                    val=values, 
+enc2dec <- function(enc) {
+    df <- data.frame(x=getXFromCOORD(enc), 
+                    y=getYFromCOORD(enc), 
+                    z=getZFromCOORD(enc), 
                     coord=enc)
     return(df)
 }
