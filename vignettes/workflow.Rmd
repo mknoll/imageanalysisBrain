@@ -48,77 +48,22 @@ options("BITSIZE"=10)
 Two brain datasets are included in this package with their respective 
 whole brain volumes and GTVs. 
 
-A single dataset is stores as entry in a list.
-
-```{r}
-## Sample TCIA processed datasets
-samples <- c("TCGA-76-4931","TCGA-76-6285")
-
-## collect datasets
-allData <- list()
-i<- 1
-```
-
-The exemplary data is stored with an encoded coordinate (COORD). Therefore,
-x,y,z values have to be extracted using decX, dexY, dexZ. 
+The exemplary data is stored with an encoded coordinate (COORD). 
 
 Both GTV and whole brain data is loaded.
 
 ```{r}
-## load GTV data
-gtvFile <- system.file("extdata", 
-                        paste(
-                            samples[i],"/","PXL_GTV_COORD.csv.gz", 
-                            sep=""),
-                        package = "imageanalysisBrain")
+## load GTV data, having only a COORD column (contains x,y,z) vals
+gtvFile <- system.file("extdata", "TCGA-76-4931/PXL_GTV_COORD.csv.gz", package = "imageanalysisBrain")
 gtv <- read.table(gzfile(gtvFile), sep=",", header=TRUE)
-gtv$x <- imageanalysisBrain::getXFromCOORD(gtv$COORD)
-gtv$y <- imageanalysisBrain::getYFromCOORD(gtv$COORD)
-gtv$z <- imageanalysisBrain::getZFromCOORD(gtv$COORD)
-gtv <- gtv[,c(3:5,1:2)]
+gtvImage <- new("brainImage", gtv, gtvFile, 10) #10: Used Bitsize for encoding
 
 ##Load Brain data
-##variant 2: all info encoded in COORD column
-brainFile <- system.file("extdata", 
-                            paste(
-                                samples[i],
-                                "/",
-                                "PXL_BRAIN_COORD.csv.gz", 
-                                sep=""), 
-                            package = "imageanalysisBrain")
+brainFile <- system.file("extdata", "TCGA-76-4931/PXL_BRAIN_COORD.csv.gz", package = "imageanalysisBrain")
 brain <- read.table(gzfile(brainFile), sep=",", header=TRUE)
-brain$x <- imageanalysisBrain::getXFromCOORD(brain$COORD)
-brain$y <- imageanalysisBrain::getYFromCOORD(brain$COORD)
-brain$z <- imageanalysisBrain::getZFromCOORD(brain$COORD)
-brain <- brain[,c(3:5,1:2)]
+brainImage <- new("brainImage", brain, brainFile, 10) #10: Used Bitsize for encoding
 ```
 
-Alternatively, if {x,y,z} values are available in a datafile, 
-the COORD value is calculated using enc.
-
-```{r}
-## Data was already loaded in the previous chunk
-if (FALSE) {
-    #GTV volume
-    gtvFile <- system.file("extdata", 
-                            paste(
-                                samples[i],"/","PXL_GTV.csv", sep=""), 
-                            package = "imageanalysisBrain")
-    gtv <- data.frame(data.table::fread(gtvFile, sep=",", header=TRUE))
-    gtv$COORD <- imageanalysisBrain::encodeXYZToCOORD(gtv$x, gtv$y, gtv$z)
-
-    #Brain data
-    brainFile <- system.file("extdata", 
-                                paste(
-                                samples[i],"/","PXL_BRAIN.csv", 
-                                sep=""), 
-                                package = "imageanalysisBrain")
-    brain <- data.frame(data.table::fread(brainFile, sep=",", 
-header=TRUE))
-    brain$COORD <- imageanalysisBrain::encodeXYZToCOORD(brain$x, brain$y, brain$z)
-}
-
-```
 
 As different techniques are used for data acquisition, the maximum value in
 x dimension (coronar) should be normalized. This is done by calculating a
@@ -126,34 +71,16 @@ scaling factor.
 
 ```{r}
 ## calculate x scaling factor 
-xvals <- imageanalysisBrain::getXRange(brain)
-xfactor <- 1/(xvals$xMax - xvals$xMin)
+brainImage <- calcXScalingFactor(brainImage)
 ```
 
 
 After importing the data, a center of origin is determined to allow for 
 evaluation of distances, e.g. between brain and tumor center (getZeroCoord()).
 
-```{r}
-gtvZero <- imageanalysisBrain::getZeroKoord(gtv, draw = FALSE)
-brainZero <- imageanalysisBrain::getZeroKoord(brain, draw = FALSE)
-```
-
 
 A dataset containing matching GTV, whole brain, point of origin coordinates 
 and scaling factors is then stored as a list entry (allData).
-
-```{r}
- ##Bind together and get Points of  Origins for Brain and Tumor Volumes
-allData[[i]] <- list(name=samples[i],
-                    gtv=gtv,
-                    brain=brain,
-                    gtvZero=gtvZero,
-                    brainZero=brainZero,
-                    factor=xfactor
-                    )
-```
-
 
 ## Image features 
 
@@ -170,19 +97,6 @@ These can be separated into different categories:
 The feature values are calculated for each allData list element (=dataset
 containing GTV + brain data) and is stored in an additional list (imgFeatures). 
 
-```{r}
-## Store all imaging features
-imgFeatures <- list()
-```
-
-The column in which the intensities are stored has to be given,
-e.g. for < x | y | z | T1KM | COORD > index=4.
-
-```{r}
-#column of interest (e.g. T1KM, T2, ADC...)
-index <- 4
-```
-
 Technical differences in acquisitions between different datasets has to be 
 compensated for. 
 
@@ -194,64 +108,20 @@ The used heuristics are:
 The psych and e1071 packages provide useful functions for the first point.
   
 ```{r}
-library(e1071) 
+## Store all imaging features
+imgFeatures <- list()
 
-##basic features
-imgFeatures$gtvVolNorm <- 
-    do.call(rbind, 
-            lapply(allData, function(x) length(x$gtv$COORD)/
-                        length(x$brain$COORD)))
-imgFeatures$gtvSD <- 
-    do.call(rbind, 
-            lapply(allData, function(x) sd(x$gtv[,index])))
-imgFeatures$gtvRange <- 
-    do.call(rbind, 
-            lapply(allData, function(x) max(x$gtv[,index])-min(x$gtv[,index])))
-imgFeatures$koordDistCanberraNorm <- 
-    do.call(rbind, 
-            lapply(allData, function(x) 
-                dist(rbind(x$gtvZero[,c("x","y","z")]*x$factor, 
-                            x$brainZero[,c("x","y","z")]*x$factor), 
-                    method="canberra")))
+# GTV in relation to whole Brain Volume
+imgFeatures$gtvVolNorm <- length(gtvImage@coords)/length(brainImage@coords)
 
-##additional Features
-imgFeatures$gtvMean <- 
-    do.call(rbind, lapply(allData, function(x) mean(x$gtv[,index])))
-imgFeatures$gtvMedian <- 
-    do.call(rbind, lapply(allData, function(x) median(x$gtv[,index])))
-imgFeatures$gtvSkewness <- 
-    do.call(rbind, lapply(allData, function(x) skewness(x$gtv[,index])))
-imgFeatures$gtvKurtosis <- 
-    do.call(rbind, lapply(allData, function(x) kurtosis(x$gtv[,index])))
-imgFeatures$gtvMax <- 
-    do.call(rbind, lapply(allData, function(x) max(x$gtv[,index])))
+# Only GTV dependent measurements
+imgFeatures$gtvSD <- sd(gtvImage@measurements)
 
-##additional distances 
-imgFeatures$koordDistEuclNorm <- 
-    do.call(rbind, 
-            lapply(allData, function(x) dist(
-                rbind(x$gtvZero[,c("x","y","z")]*x$factor, 
-                    x$brainZero[,c("x","y","z")]*x$factor))))
-imgFeatures$koordDistManhattanNorm <- 
-    do.call(rbind, 
-            lapply(allData, function(x) dist(
-                rbind(x$gtvZero[,c("x","y","z")]*x$factor, 
-                    x$brainZero[,c("x","y","z")]*x$factor), 
-                method="manhattan")))
-```
-
-The collected imaging features can now be easily shown in a matrix,
-and further analyzed e.g. by hcl when several datasets are available.
-
-```{r}
-## output
-mat <- do.call(cbind, imgFeatures)
-rownames(mat) <- unlist(do.call(rbind, allData)[,"name"])
-colnames(mat) <- c("gtvVolNorm", "gtvSD", "gtvRange", 
-                    "koordDistCanberraNorm", "gtvMean", 
-                    "gtvMedian","gtvSkewness", "gtvKurtosis", 
-                    "gtvMax", "koordDistEuclNorm", 
-                    "koordDistManhattanNorm")
+#Distances between points of origins: GTv / Brain
+imgFeatures$koordDistCanberraNorm <- dist(
+    rbind(gtvImage@origin*brainImage@xfactor, 
+          brainImage@origin*brainImage@xfactor),
+    method="canberra")
 ```
 
 
@@ -271,92 +141,59 @@ This separation is done by repeatedly drawing of small numbers of voxels
 from the whole brain volume. Their resultign distribution is then 
 analyzed, and aggregated minimum values are selected as cutoffs. 
 
-
-```{r}
-## sample data 
-allBrain <- list()
-print(paste("Processing", allData[[i]]$name))
-tm <- Sys.time()
-## takes around 6 mins for 500.000 iteration with 7 running threads
-allBrain[[i]] <- imageanalysisBrain::sampleData(allData[[i]]$brain[,4], iterat=10000)
-tm <- c(tm, Sys.time())
-tm[2]-tm[1]
-```
-
 The next step is a filtering step which selects only local maxima which 
 are neighboured by two larger local maxima.
 
 ```{r}
-print("Collect cutoffs ...")
-collectedCutoffs <- imageanalysisBrain::determineTissueClasses(allBrain)
-
-## Mark final cutoff values
-allBrain[[1]] <- allBrain[[1]][order(allBrain[[1]]$key),]
-col=rep(1, length(allBrain[[1]]$val))
-pch=rep(21, length(col))
-col[which( allBrain[[i]]$key %in% collectedCutoffs[[1]]$key)] <- 2
-pch[which( allBrain[[i]]$key %in% collectedCutoffs[[1]]$key)] <- 23
-
-## Plot all identified max values 
-plot(allBrain[[i]]$val~allBrain[[i]]$key, main="Potential cutoffs", col=col,lwd=2,pch=pch)
-lines(allBrain[[i]]$key, allBrain[[i]]$val, lty=2)
+## sample data 
+## takes approximately 40 sek for 100.000 iterations with 7 running threads
+## on a i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
+brainImage@selectedThresholds <- sampleData(brainImage@measurements, iterat=10000)
 ```
+
 
 The complete dataset consisting of whole brain and tumor data can 
 now be splitted according to the identified cutoffs (subclasses list).
 These can then be easily plotted (2D, 3D).
 
 ```{r}
-##GTV Subclasses
-subclassesGTV <- imageanalysisBrain::getSubclasses(allData[[i]]$gtv, collectedCutoffs[[i]])
-subclassesGTV <- getSubclasses(allData[[i]]$gtv, collectedCutoffs[[i]])
+##TODO: check if no subclasses could be identified....
+subclassesGTV <- getSubclasses(gtvImage, brainImage@selectedThresholds)
 
-##Brain Subclasses
-subclassesBrain <- imageanalysisBrain::getSubclasses(allData[[i]]$brain, collectedCutoffs[[i]])
+subclassesBrain <- getSubclasses(brainImage, brainImage@selectedThresholds)
 ```
 
 
 ## Plot brain / tumor slices
 
-Single z-slices can now be easily plotted. 
+Single z-slices can now be easily plotted.
 
 ```{r}
-##Plot given slice from the brain 
-imageanalysisBrain::plotZSlice(allData[[i]]$brain, z)
-
-#.. nad the corresponding slice from the GTV
-imageanalysisBrain::plotZSlice(allData[[i]]$gtv, z)
+image(brainImage[,,10])
+image(gtvImage[,,10])
 ```
 
-However, if dimensions should be preserved to ensure compareability,
-the minXY, and maxXY values must be provided.
+
+If dimensions should be preserved to ensure direct comparability 
+or overlap of images, an helper function can be used.
 
 ```{r}
-data <- allData[[i]]$brain
-minx <- min(data$x, na.rm=TRUE)
-maxx <- max(data$x, na.rm=TRUE)
-miny <- min(data$y, na.rm=TRUE)
-maxy <- max(data$y, na.rm=TRUE)
+##Plot brain Slice
+dim <- plotZSlice(brainImage, 10, dim=NULL) 
 
-##Plot brain
-imageanalysisBrain::plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, 
-maxy=maxy)
-
-##... add GTV slice 
-imageanalysisBrain::plotZSlice(allData[[i]]$gtv, z, minx=minx, maxx=maxx, miny=miny, 
-maxy=maxy, add=T, col=gplots::bluered(1024))
+## ... and add GTV slice 
+plotZSlice(gtvImage, 10, dim=dim, add=T, col=gplots::bluered(1024)) 
 ```
+
 
 Showing only the identified subclass is just as easy (Brain):
 
 ```{r}
 ##Plot brain
-imageanalysisBrain::plotZSlice(data, z, minx=minx, maxx=maxx, miny=miny, 
-maxy=maxy)
+dim <- plotZSlice(brainImage, 10, dim=NULL) 
 
 ##Plot the first subclass (lowest intensity) proportion of the whole brain
-imageanalysisBrain::plotZSlice(subclassesBrain[[1]], z, minx=minx, maxx=maxx, miny=miny, 
-maxy=maxy, add=T, col=gplots::bluered(1024))
+plotZSlice(subclassesBrain[[1]], z, dim, add=T, col=gplots::bluered(1024))
 ```
 
 and GTV:

@@ -44,29 +44,26 @@ sampleData <- function(data, proportion=0.001, iterat=500000, delta=1) {
     maxV <- max(data)  
     diffV <- seq.int(from=minV, to=maxV, by=delta)
     lengthData <- length(data)
+    n <- floor(size)
     
     ## collect all minimal values (Keys)
     ## 7 threads, 500.000 iterations, ca 4.4 min
     ## on Linux gentoo 4.9.6-gentoo-r1 #1 SMP 
     ## x86_64 Intel(R) Core(TM) i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
-    dyn.load("C/sample.so")
-    .C("sampleInt",data)
-    tm <- Sys.time()
     allMin <- foreach (k=1:iterat) %dopar% {
         ##get small subset of voxels
         subData <- data[sample.int(lengthData, size, FALSE, NULL)]
         d1 <- diff(fitDensityFunGetXVals(subData, n, minV, maxV, diffV))
         tmp <- .Internal(which(d1[-length(d1)]<0 & d1[-1]>0))+1
     }
-    tm <- c(tm, Sys.time())
-    tm[2]-tm[1]
     
     allMins <- unlist(allMin)
 
     ##get maxima of allMins
-    max <- getExtremalValues(allMins, zeichne = FALSE, delta = 10)$maxima
+    #TODO: adjust getExtremalValues
+    max <- getExtremalValues(allMins, zeichne = FALSE, delta = 10)$maxima 
 
     doParallel::stopImplicitCluster()
    
-    return (max)
+    return (determineTissueClasses(max))
 }

@@ -16,43 +16,26 @@
 #' val=c(0.0027, 0.0021, 0.0020, 0.0020, 0.0013, 0.0012, 0.0004, 0.0001)))
 #' determineTissueClasses(data)
 determineTissueClasses <- function(data) {
-    #tissue class cutoffs
-    collectedCutoffs <- list()
+    selected <- NULL
     
-    for (i in 1:length(data)) {
-        #set element to NA in case classes cannot be determined
-        if (length(collectedCutoffs) <= i)  {
-            collectedCutoffs[[i]] <- NA
-        }
+    ##use brain values
+    if (!is.null(dim(data))) {
+        data <- data[order(data$key),]
+    }
         
-        ##use brain values
-        vals <- data[[i]]
-        if (!is.null(dim(vals))) {
-            vals <- vals[order(vals$key),]
-        }
+    # determine maxima which are smaller
+    # than their neighbouring maxima values:
+    # these are used as tissue cutoffs
+    if (length(data[,1]) >= 3) {
+        l <- length(data$key)
+        l1 <- length(data$key)-1
         
-        # determine maxima which are smaller
-        # than their neighbouring maxima values:
-        # these are used as tissue cutoffs
-        if (length(vals[,1]) >= 3) {
-            tmp <- NULL
-            for (j in 2:(length(vals[,1])-1)) {
-                if (vals$val[j-1] >= (vals$val[j]) && 
-                        vals$val[j+1] >= (vals$val[j])) {
-                    tmp <- rbind.fill(tmp, vals[j,])
-                }
-            }
-            if (length(collectedCutoffs) <= i) {
-                if (is.na(collectedCutoffs[[i]])) {
-                    collectedCutoffs[[i]] <- tmp
-                } else {
-                    collectedCutoffs[[i]] <- cbind(collectedCutoffs[[i]], tmp)
-                }
-            } else {
-                collectedCutoffs[[i]] <- tmp
-            }
-        }
+        dt <- data$val
+        s1 <- which(dt[-1]>=dt[-l])
+        s2 <- which(dt[-c(1:2)]>=dt[-c(1,l)])+1
+        s3 <- sort(c(s1,s2))
+        selected <- data[s3[which(duplicated(s3))],]
     }
     
-    return (collectedCutoffs)
+    return (selected)
 }

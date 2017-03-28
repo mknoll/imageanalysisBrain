@@ -18,28 +18,41 @@
 #' z=rep(1, 50), val=rnorm(50))
 #' getSubclasses(data, data.frame(key=median(data$val), val=NA))
 getSubclasses <- function(data, split, index=4) {
-    classes <- list()
-    if (length(split[,1]) == 1) {
-        ## only 1 separating value, 2 resulting classes
-        classes[[1]] <- data[which(data[,index] < split[1,"key"]),]
-        classes[[2]] <- data[which(data[,index] >= split[1,"key"]),]
-    } else {
-        
-        ## Mehrere minima
-        for (j in 1:length(split[,1])) {
-            if (j == 1) {
-                classes[[length(classes)+1]] <- data[which(data[,index] <= split[j, "key"]),]
-                print(dim(classes[[length(classes)]]))
-            } else {
-                classes[[length(classes)+1]] <- data[which(data[,index] > split[j-1, "key"] & 
-                                                           data[,index] <= split[j, "key"]),]
-                print(dim(classes[[length(classes)]]))
-            }
-            if (j == length(split[,1])) {
-                classes[[length(classes)+1]] <- data[which(data[,index] >= split[j, "key"]),]
-                print(dim(classes[[length(classes)]]))
-            }
+    classImages <- list()
+    
+    ## Mehrere minima
+    for (j in 1:length(split[,1])) {
+        if (j == 1) {
+            #classes[[length(classes)+1]] <- data[which(data[,index] <= split[j, "key"]),]
+            #print(dim(classes[[length(classes)]]))
+            classImages[[length(classImages) + 1 ]] <- new("brainImage", 
+                                                           data@values[which(data@measurements <= split[j,"key"]),],
+                                                           data@filename,
+                                                           data@coordBIT)
+            
+        } else {
+            #classes[[length(classes)+1]] <- data[which(data[,index] > split[j-1, "key"] & 
+            #data[,index] <= split[j, "key"]),]
+            #print(dim(classes[[length(classes)]]))
+            
+            classImages[[length(classImages) + 1 ]] <- new("brainImage", 
+                                                           data@values[
+                                                               which(data@measurements > split[j-1,"key"]
+                                                                     & data@measurements <= split[j,"key"]),],
+                                                           data@filename,
+                                                           data@coordBIT)
+            
+        }
+        if (j == length(split[,1])) {
+            #classes[[length(classes)+1]] <- data[which(data[,index] >= split[j, "key"]),]
+            #print(dim(classes[[length(classes)]]))
+            
+            classImages[[length(classImages) + 1 ]] <- new("brainImage", 
+                                                           data@values[which(data@measurements > split[j,"key"]),],
+                                                           data@filename,
+                                                           data@coordBIT)
         }
     }
-    return(classes)
+    
+    return(classImages)
 }

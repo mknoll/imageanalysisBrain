@@ -16,10 +16,6 @@
 #' @param miny min Y value plotted
 #' @param maxy max Y value plotted
 #' 
-#' @return returns an EBImage containing the image corresponding to
-#' the selected z slice if ret is set to TRUE. If no data is available
-#' for the selected z-slice, NULL is returned
-#' 
 #' @import grDevices
 #' @import graphics
 #' @import EBImage
@@ -33,16 +29,20 @@
 #' plotZSlice(data, 1)
 plotZSlice <- function(data, z, index=4, ret=FALSE, add=FALSE, 
                         col=grDevices::gray.colors(1024), main="", 
-                        minx=NULL, maxx=NULL, miny=NULL, maxy=NULL)  {
-    subD <- data[which(data$z == z),]
+                        dim=NULL)  {
+    subD <- data@values[which(data@values$z == z), ]
+    #subD <- data[which(data$z == z),]
     ## build image matrix
-    if (is.null(minx) || is.null(maxx)) {
+    if (is.null(dim)) {
         minx <- min(subD$x, na.rm=TRUE)
         maxx <- max(subD$x, na.rm=TRUE)
-    }
-    if (is.null(miny) || is.null(maxy)) {
         miny <- min(subD$y, na.rm=TRUE)
         maxy <- max(subD$y, na.rm=TRUE)
+    } else {
+        minx=dim$minx
+        miny=dim$miny
+        maxx=dim$maxx
+        maxy=dim$maxy
     }
     
     imgM <- matrix(ncol=((maxx-minx)+1), nrow=((maxy-miny)+1), NA)
@@ -67,7 +67,7 @@ plotZSlice <- function(data, z, index=4, ret=FALSE, add=FALSE,
     ##plot image
     graphics::image(imgM, col=col, axes=FALSE, add=add, main=main)
     
-    if (ret) {
-        return(EBImage::Image(imgM))
-    }
+    ##return dimensions used for this plot
+    dim <- list(minx=minx, maxx=maxx, miny=miny, maxy=maxy)
+    return(dim)
 }

@@ -105,5 +105,5 @@ getZeroKoord <- function(data, sparse=500, draw=FALSE, col="yellow",
         plot3d(xSlice$x, xSlice$y, xSlice$z, col=col, add=TRUE)
     }
     
-    return(coord)
+    return(list(vals=coord, version=0.1))
 }

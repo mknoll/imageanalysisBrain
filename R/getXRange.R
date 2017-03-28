@@ -60,6 +60,6 @@ getXRange <- function(data, steps=500) {
     ySlice <- data[data$y == ySel,]
     xMin<-min(ySlice$x)
     xMax<-max(ySlice$x)
-    
-    return(list(xMin=xMin, xMax=xMax))
+        
+    return(list(xMin=xMin, xMax=xMax, version=0.1))
 }
