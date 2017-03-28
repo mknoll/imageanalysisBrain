@@ -1,5 +1,8 @@
-#' @title Calculate a scaling factor 
-#' in x dimension
+#' @title
+#' Calculate a scaling factor to allow inter-patient comparisons
+#' 
+#' @description 
+#' 
 #' 
 #' @export
 calcXScalingFactor <- function(img) {

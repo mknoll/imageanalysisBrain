@@ -19,9 +19,9 @@ DICOM files can be imported e.g. in MITK (http://www.mitk.org). MITK allows to
 segment whole brain and tumor volumes and then export of the resulting volumes 
 as csv files.
 
-These files have the following composition:
+These files usually look like this:
 x | y | z | VALUE 
-whereas (x,y,z) are the non-standardized coordinates, and VALUE the respective
+whereas (x,y,z) are coordinates, and VALUE the respective
 value for T1ce, T2, .. sequences or CT data.
 
 These files are imported in a first step. Several different variants are
@@ -30,58 +30,65 @@ possible:
 - Store (x,y,z) coordinates in one single value
 - +/- compression (e.g. using gzip)
 
-The encoded coordinates are useful to easily perform set operations, and to
-save main memory when performing R analyses. 
+The encoded coordinates are useful to easily perform set operations. 
 
-An encoded value has the following internal form, where {a,b,c} are the reserved 
-bit positions for the {x,y,z} values.
+An encoded value has the following internal form, where {a,b,c} are the 
+reserved bit positions for the {x,y,z} values.
 
 x[x..x]ccccccccccbbbbbbbbbbaaaaaaaaaa
 
-The number of repetitions is determined with the BITSIZE option. For the example 
-data, 10 is used. 
+The number of repetitions is determined with the BITSIZE option. For the 
+example data, 10 is used. 
 
 ```{r}
 options("BITSIZE"=10)
+```
+
+To ease analysis of imaging data, a new class is introducted: brainImage.
+This class inherits from the EBImage::Image class.
+
+```{r}
 source("R/brainImageClass.R")
 ```
 
-Two brain datasets are included in this package with their respective 
-whole brain volumes and GTVs. 
+For demonstration purposes, two brain datasets are included in this package,
+consisting of whole brain data an contoured tumor volumes.
 
 The exemplary data is stored with an encoded coordinate (COORD). 
 
-Both GTV and whole brain data is loaded.
+First, both GTV and whole brain data is loaded.
 
 ```{r}
 ## load GTV data, having only a COORD column (contains x,y,z) vals
-gtvFile <- system.file("extdata", "TCGA-76-4931/PXL_GTV_COORD.csv.gz", package = "imageanalysisBrain")
+gtvFile <- system.file("extdata", "TCGA-76-4931/PXL_GTV_COORD.csv.gz", 
+    package = "imageanalysisBrain")
 gtv <- read.table(gzfile(gtvFile), sep=",", header=TRUE)
 gtvImage <- new("brainImage", gtv, gtvFile, 10) #10: Used Bitsize for encoding
 
 ##Load Brain data
-brainFile <- system.file("extdata", "TCGA-76-4931/PXL_BRAIN_COORD.csv.gz", package = "imageanalysisBrain")
+brainFile <- system.file("extdata", "TCGA-76-4931/PXL_BRAIN_COORD.csv.gz", 
+    package = "imageanalysisBrain")
 brain <- read.table(gzfile(brainFile), sep=",", header=TRUE)
-brainImage <- new("brainImage", brain, brainFile, 10) #10: Used Bitsize for encoding
+brainImage <- new("brainImage", brain, brainFile, 10) 
 ```
 
-
-As different techniques are used for data acquisition, the maximum value in
-x dimension (coronar) should be normalized. This is done by calculating a
-scaling factor.
+As different techniques are used for data acquisition, voxel sizes differ 
+in their absolute dimensions. Here, an approximation is used which normalizes
+the maximum biparietal dimension of the whole brain data to 1. 
+The scaling factor, which is later used to calculate distances, is stored 
+in the xfactor slot.
 
 ```{r}
 ## calculate x scaling factor 
 brainImage <- imageanalysisBrain::calcXScalingFactor(brainImage)
 ```
 
+Furthermore, no absolute center of origin within the whole brain volume is 
+known. Therefore, a further heuristic is applied, which should localize
+a center of origin centrally between both lateral ventricles.
+This center of origin is automatically calculated and stored in the 
+origin slot.
 
-After importing the data, a center of origin is determined to allow for 
-evaluation of distances, e.g. between brain and tumor center (getZeroCoord()).
-
-
-A dataset containing matching GTV, whole brain, point of origin coordinates 
-and scaling factors is then stored as a list entry (allData).
 
 ## Image features 
 
@@ -91,12 +98,9 @@ features can be extracted from the images.
 These can be separated into different categories:
 
 - Distribution characteristics: descriptive values, e.g. mean, sd, ...
-- Distances between the Tumor-Center (gtvZero) and the brain center
-  of origin (brainZero)
+- Distances between the Tumor-Center and the brain center
+    of origin 
 - ...
-
-The feature values are calculated for each allData list element (=dataset
-containing GTV + brain data) and is stored in an additional list (imgFeatures). 
 
 Technical differences in acquisitions between different datasets has to be 
 compensated for. 
@@ -104,10 +108,8 @@ compensated for.
 The used heuristics are: 
 - Tumor volumes are calculated as proportions of the whole brain volume
 - Distances are adjusted with the previously mentioned xfactor which
-  normalized the maximal biparietal distance to 1.
-  
-The psych and e1071 packages provide useful functions for the first point.
-  
+    normalized the maximal biparietal distance to 1.
+
 ```{r}
 ## Store all imaging features
 imgFeatures <- list()
@@ -121,7 +123,7 @@ imgFeatures$gtvSD <- sd(gtvImage@measurements)
 #Distances between points of origins: GTv / Brain
 imgFeatures$koordDistCanberraNorm <- dist(
     rbind(gtvImage@origin*brainImage@xfactor, 
-          brainImage@origin*brainImage@xfactor),
+            brainImage@origin*brainImage@xfactor),
     method="canberra")
 ```
 
@@ -133,7 +135,7 @@ by intensity into different classes. However, absolute cutoffs,
 as can be used for CT images, are not applicable due to a often 
 high hetereogeneity scanners / sequences. 
 
-Therefore, different "tissue classes"" are extract by analyzing whole 
+Therefore, different "tissue classes" are extract by analyzing whole 
 brain value to identify cutoffs for these classes.
 This allows to quantify the relative contibution of e.g. a hypointense 
 class to a given tumor volume / GTV. 
@@ -142,54 +144,58 @@ This separation is done by repeatedly drawing of small numbers of voxels
 from the whole brain volume. Their resultign distribution is then 
 analyzed, and aggregated minimum values are selected as cutoffs. 
 
-The next step is a filtering step which selects only local maxima which 
-are neighboured by two larger local maxima.
+Internally, a filtering step is applied, which selects only local 
+maxima which are neighboured by two larger local maxima as valid 
+cutoffs.
 
 ```{r}
 ## sample data 
 ## takes approximately 40 sek for 100.000 iterations with 7 running threads
 ## on a i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
-brainImage@selectedThresholds <- imageanalysisBrain::sampleData(brainImage@measurements, iterat=10000)
+brainImage@selectedThresholds <- 
+    imageanalysisBrain::sampleData(brainImage@measurements, iterat=10000)
 ```
 
-
 The complete dataset consisting of whole brain and tumor data can 
-now be splitted according to the identified cutoffs (subclasses list).
+now be splitted into separated brainImage instances using the previously 
+identified cutoffs.
 These can then be easily plotted (2D, 3D).
 
 ```{r}
 ##TODO: check if no subclasses could be identified....
-subclassesGTV <- imageanalysisBrain::getSubclasses(gtvImage, brainImage@selectedThresholds)
+subclassesGTV <- imageanalysisBrain::getSubclasses(gtvImage, 
+    brainImage@selectedThresholds)
 
-subclassesBrain <- imageanalysisBrain::getSubclasses(brainImage, brainImage@selectedThresholds)
+subclassesBrain <- imageanalysisBrain::getSubclasses(brainImage, 
+    brainImage@selectedThresholds)
 ```
-
-
 ## Plot brain / tumor slices
 
-Single z-slices can now be easily plotted.
+Single z-slices can be plotted as follows:
 
 ```{r}
+# Plot slice 10 (z) of the brain volume
 image(brainImage[,,10])
+# and the GTV volume
 image(gtvImage[,,10])
 ```
 
-
 If dimensions should be preserved to ensure direct comparability 
-or overlap of images, an helper function can be used.
+or overlap of images, a helper function (plotZSlice) can be used.
 
 ```{r}
 ##Plot brain Slice
 dim <- imageanalysisBrain::plotZSlice(brainImage, 10, dim=NULL) 
 
-## ... and add GTV slice 
-imageanalysisBrain::plotZSlice(gtvImage, 10, dim=dim, add=T, col=gplots::bluered(1024)) 
+## ... and add the GTV slice 
+imageanalysisBrain::plotZSlice(gtvImage, 10, 
+    dim=dim, add=T, col=gplots::bluered(1024)) 
 ```
 
-Showing only the identified subclass is just as easy (Brain):
+Showing only subclass-slices works similar:
 
 ```{r}
-##Plot first brain subclass
+##Plot first brain subclass, z-slice 10
 image(subclassesBrain[[1]][,,10])
 ```
 

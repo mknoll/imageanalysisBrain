@@ -1,12 +1,34 @@
-### brainImage class extends EBImage
 
-require(EBImage)
-
-##Helper classes to allow for NULL values
+#' An S4 Helper class to allow NULL values
 setClassUnion("numericOrNULL", c("numeric", "NULL"))
+
+#' An S4 Helper class to allow NULL values
 setClassUnion("dfOrNULL", c("data.frame", "NULL"))
 
-## Main-Class
+#' An S4 class representing an brain image
+#' 
+#' @slot values Via MITK exported imaging data,
+#' has the form: x,y,z,Value or Value,COORD
+#' @slot filename Identifier from which the 
+#' data comes from
+#' @slot coordBIT: size used to encode each coordinate,
+#' 10 would be enough for dimension values up to 10^2 
+#' @slot coords Encoded koordinates, eases set operations
+#' when manipulating volumes
+#' @measurements actually sored measurements for this
+#' object (see: values: Value)
+#' @slot origin center of origin of this volume
+#' @slot originVersion method to calculate the origin
+#' might be prone to changes; therefore, a version
+#' is stored
+#' @slot xfactor factor which can be used to make 
+#' distances comparable between patients; Normalizes
+#' the biparietal distance to 1
+#' @slot xfactorVersion see originVersion
+#' @slot image EBImage::Image created from values
+#' @slot selectedThresholds thresholds, which might 
+#' be useful when analyzing different tissue classes
+#' in MRI data
 brainImage <- setClass("brainImage",
                        slots=c(values="data.frame", #sequencial data storage
                                filename="character",
@@ -23,7 +45,13 @@ brainImage <- setClass("brainImage",
                        ),
                        contains="Image")
 
-## Constructor brainImage
+#' @title Constructor brainImage
+#' 
+#' @description Constructor for new brainImage instances
+#'
+#' @return a new brainImage instance
+#'
+#' @import EBImage
 setMethod("initialize", "brainImage",
           function(.Object, 
                    values = data.frame, 
