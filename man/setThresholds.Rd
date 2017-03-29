@@ -10,7 +10,7 @@ setThresholds(img, thresholds)
 \item{img}{brainImage instance}
 
 \item{thresholds}{data.frame with key/val columns,
-calculated with sampleData()}
+calculated with identifyMinima()}
 }
 \value{
 adjusted imageBrain object
@@ -18,13 +18,13 @@ adjusted imageBrain object
 \description{
 Sets tissue class thresholds for this 
 object. Thresholds can be caluclated with 
-sampleData().
+identifyMinima().
 }
 \examples{
 data <- data.frame(x=1:15, y=1:15, 
 z=c(rep(2,15), rep(3,15)), val=rnorm(6750))
 img <- new("brainImage", data, "test", 10)
 img <- setThresholds(img,
-imageanalysisBrain::sampleData(getMeasurements(img), iterat=1000))
+imageanalysisBrain::identifyMinima(getMeasurements(img), iterat=1000))
 }
 

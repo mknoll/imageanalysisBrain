@@ -17,7 +17,7 @@
 #' @return list of min/max values used for this plot
 #' 
 #' @import grDevices
-#' @import graphics
+#' @importFrom graphics image
 #' @import EBImage
 #' 
 #' @export

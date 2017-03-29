@@ -15,7 +15,7 @@ adjusted imageBrain object
 \description{
 Returns cutoffs for different tissue 
 classes, identified with 
-sampleData(getMeasurements(brainImage), iterat=10000)
+identifyMinima(getMeasurements(brainImage), iterat=10000)
 and set with setThresholds().
 }
 \examples{
@@ -24,7 +24,7 @@ data <- data.frame(x=1:15, y=1:15,
 z=c(rep(2,15), rep(3,15)), val=rnorm(6750))
 img <- new("brainImage", data, "test", 10)
 img <- setThresholds(img,
-imageanalysisBrain::sampleData(getMeasurements(img), iterat=1000))
+imageanalysisBrain::identifyMinima(getMeasurements(img), iterat=1000))
 getThresholds(img)
 }
 

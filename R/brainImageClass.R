@@ -234,7 +234,7 @@ getOrigin <- function(img) {
 #' 
 #' @description Returns cutoffs for different tissue 
 #' classes, identified with 
-#' sampleData(getMeasurements(brainImage), iterat=10000)
+#' identifyMinima(getMeasurements(brainImage), iterat=10000)
 #' and set with setThresholds(). 
 #' 
 #' @param img brainImage instance
@@ -249,7 +249,7 @@ getOrigin <- function(img) {
 #' z=c(rep(2,15), rep(3,15)), val=rnorm(6750))
 #' img <- new("brainImage", data, "test", 10)
 #' img <- setThresholds(img,
-#' imageanalysisBrain::sampleData(getMeasurements(img), iterat=1000))
+#' imageanalysisBrain::identifyMinima(getMeasurements(img), iterat=1000))
 #' getThresholds(img)
 getThresholds <- function(img) {
     checkClass(img, "brainImage")
@@ -260,11 +260,11 @@ getThresholds <- function(img) {
 #' 
 #' @description Sets tissue class thresholds for this 
 #' object. Thresholds can be caluclated with 
-#' sampleData().
+#' identifyMinima().
 #' 
 #' @param img brainImage instance
 #' @param thresholds data.frame with key/val columns,
-#' calculated with sampleData()
+#' calculated with identifyMinima()
 #' 
 #' @return adjusted imageBrain object 
 #' 
@@ -275,7 +275,7 @@ getThresholds <- function(img) {
 #' z=c(rep(2,15), rep(3,15)), val=rnorm(6750))
 #' img <- new("brainImage", data, "test", 10)
 #' img <- setThresholds(img,
-#' imageanalysisBrain::sampleData(getMeasurements(img), iterat=1000))
+#' imageanalysisBrain::identifyMinima(getMeasurements(img), iterat=1000))
 setThresholds <- function(img, thresholds) {
     checkClass(img, "brainImage")
     #TODO: check

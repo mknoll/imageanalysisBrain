@@ -152,11 +152,11 @@ maxima which are neighboured by two larger local maxima as valid
 cutoffs.
 
 ```{r}
-## sample data 
 ## takes approximately 40 sek for 100.000 iterations with 7 running threads
 ## on a i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
 brainImage <- setThresholds(brainImage,
-    imageanalysisBrain::sampleData(getMeasurements(brainImage), iterat=10000))
+    imageanalysisBrain::identifyMinima(
+        getMeasurements(brainImage), iterat=10000))
 ```
 
 The complete dataset consisting of whole brain and tumor data can 

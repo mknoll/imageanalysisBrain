@@ -1,13 +1,12 @@
-#' @title Sample data
+#' @title identifies minima in a given set of values
 #' 
-#' @description 
-#' Fast alternative for extr(), returning only minima
-#' and using parallelization
+#' @description Identifies minima by repeatedly drawing 
+#' small numbers of values from a larger set. 
 #' 
 #' @param data vector of values to analyze
-#' @param proportion proportion of voxels to analyze 
+#' @param proportion proportion of values to analyze 
 #' (proportions*length(data)), if below 10, then the value 
-#' is mutiplied by 10
+#' is mutiplied by 10 in each iteration
 #' @param iterat number of sample drawings 
 #' @param delta width between two points to differentiate 
 #'
@@ -21,8 +20,9 @@
 #' @export
 #' 
 #' @examples
-#' sampleData(1:1000, 1, 10)
-sampleData <- function(data, proportion=0.001, iterat=500000, delta=1) {
+#' identifyMinima(1:1000, 1, 10)
+identifyMinima <- 
+    function(data, proportion=0.001, iterat=500000, delta=1) {
     ## check for inf / na
     if (any(is.na(data)) || any(is.infinite(data))) {
         warning("Found NA/Inf! Substituted with 0!")

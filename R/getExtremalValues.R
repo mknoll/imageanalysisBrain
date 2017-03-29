@@ -11,7 +11,7 @@
 #' @return list, containing two data.frames: min and max key/value pairs
 #' 
 #' @import stats
-#' @import graphics
+#' @importFrom graphics plot abline points
 #' 
 #' @export
 #' 
