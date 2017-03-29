@@ -37,9 +37,13 @@ reserved bit positions for the {x,y,z} values.
 
 x[x..x]ccccccccccbbbbbbbbbbaaaaaaaaaa
 
-#TODO: not needed anymore as global option -> constructor argument
 The number of repetitions is determined with the BITSIZE option. For the 
 example data, 10 is used. 
+
+```{r}
+##TODO: check if this 'global var' can be avoided
+options("BITSIZE"=10)
+```
 
 To ease analysis of imaging data, a new class is introducted: brainImage.
 This class inherits from the EBImage::Image class.
