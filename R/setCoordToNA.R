@@ -15,7 +15,8 @@ setCoordToNA <- function(data, sel) {
     coordsXYZ <- imageanalysisBrain::decodeCOORDToXYZDf(coords)
     dimV <- dim(data@.Data)
     #(slice-1)*dimV[1]*dimV[2] + dimV[1]*(col-1) + row
-    coordsXYZ$pos <- (coordsXYZ$z-1)*dimV[1]*dimV[2] + dimV[1]*(coordsXYZ$y-1) + coordsXYZ$x
+    coordsXYZ$pos <- (coordsXYZ$z-1)*dimV[1]*dimV[2] + 
+        dimV[1]*(coordsXYZ$y-1) + coordsXYZ$x
 
     ##flatten 
     dt <- as.matrix(data@.Data, ncol=1)

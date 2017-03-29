@@ -23,15 +23,18 @@ getSubclasses <- function(data, split) {
     ## Mehrere minima
     for (j in 1:length(split[,1])) {
         if (j == 1) {
-            cpy <- setCoordToNA(data, which(data@measurements <= split[j,"key"]))
+            cpy <- setCoordToNA(data, 
+                                which(data@measurements <= split[j,"key"]))
             classImages[[length(classImages) + 1 ]] <- cpy
         } else {
-            cpy <- setCoordToNA(data, which(data@measurements > split[j-1,"key"] & 
-                                                data@measurements <= split[j,"key"]))
+            cpy <- setCoordToNA(data, 
+                                which(data@measurements > split[j-1,"key"] & 
+                                    data@measurements <= split[j,"key"]))
             classImages[[length(classImages) + 1 ]] <- cpy
         }
         if (j == length(split[,1])) {
-            cpy <- setCoordToNA(data, which(data@measurements > split[j,"key"]))
+            cpy <- setCoordToNA(data, 
+                                which(data@measurements > split[j,"key"]))
             classImages[[length(classImages) + 1 ]] <- cpy
         }
     }

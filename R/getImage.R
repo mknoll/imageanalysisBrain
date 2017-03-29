@@ -19,7 +19,7 @@
 getImage <- function(data) {
     if (length(data[1,]) < 4) {
         stop("Invalid data.frame dimension!
-	Required: x,y,z,vals");
+            Required: x,y,z,vals");
     }
     dimX <- max(data$x,na.rm=TRUE)
     dimY <- max(data$y,na.rm=TRUE)

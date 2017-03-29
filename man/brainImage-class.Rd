@@ -11,13 +11,17 @@ An S4 class representing an brain image
 \section{Slots}{
 
 \describe{
+\item{\code{.Data}}{see EBImage::Image@.Data}
+
+\item{\code{colormode}}{see EBImage::Image@colormode}
+
 \item{\code{values}}{Via MITK exported imaging data,
 has the form: x,y,z,Value or Value,COORD}
 
 \item{\code{filename}}{Identifier from which the 
 data comes from}
 
-\item{\code{coordBIT:}}{size used to encode each coordinate,
+\item{\code{coordBIT}}{size used to encode each coordinate,
 10 would be enough for dimension values up to 10^2}
 
 \item{\code{coords}}{Encoded koordinates, eases set operations
@@ -38,10 +42,11 @@ the biparietal distance to 1}
 
 \item{\code{xfactorVersion}}{see originVersion}
 
-\item{\code{image}}{EBImage::Image created from values}
-
 \item{\code{selectedThresholds}}{thresholds, which might 
 be useful when analyzing different tissue classes
 in MRI data}
+
+\item{\code{type}}{Name of the stored datatype (colname from
+the measurements column in the values dataframe)}
 }}
 

@@ -7,11 +7,13 @@ setClassUnion("dfOrNULL", c("data.frame", "NULL"))
 
 #' An S4 class representing an brain image
 #' 
+#' @slot .Data see EBImage::Image@.Data
+#' @slot colormode see EBImage::Image@colormode
 #' @slot values Via MITK exported imaging data,
 #' has the form: x,y,z,Value or Value,COORD
 #' @slot filename Identifier from which the 
 #' data comes from
-#' @slot coordBIT: size used to encode each coordinate,
+#' @slot coordBIT size used to encode each coordinate,
 #' 10 would be enough for dimension values up to 10^2 
 #' @slot coords Encoded koordinates, eases set operations
 #' when manipulating volumes
@@ -25,28 +27,28 @@ setClassUnion("dfOrNULL", c("data.frame", "NULL"))
 #' distances comparable between patients; Normalizes
 #' the biparietal distance to 1
 #' @slot xfactorVersion see originVersion
-#' @slot image EBImage::Image created from values
 #' @slot selectedThresholds thresholds, which might 
 #' be useful when analyzing different tissue classes
 #' in MRI data
+#' @slot type Name of the stored datatype (colname from
+#' the measurements column in the values dataframe)
 #' 
 #' @name brainImage-class
 #' @exportClass brainImage
 brainImage <- setClass("brainImage",
-                       slots=c(values="data.frame", #sequencial data storage
-                               filename="character",
-                               coordBIT="numeric", #number of bits/ value to store in (x,y,z) aggregated value
-                               type="character", 
-                               coords="numeric", 
-                               measurements="numeric",
-                               origin="data.frame", #center of origin
-                               originVersion="numeric",
-                               xfactor="numericOrNULL", #scaling of whole brain volumes -> biparietal eq 1
-                               xfactorVersion="numericOrNULL",
-                               image="Image", #data storage as Image 
-                               selectedThresholds="dfOrNULL"
-                       ),
-                       contains="Image")
+                        slots=c(values="data.frame", 
+                                filename="character",
+                                coordBIT="numeric", 
+                                type="character", 
+                                coords="numeric", 
+                                measurements="numeric",
+                                origin="data.frame", 
+                                originVersion="numeric",
+                                xfactor="numericOrNULL", 
+                                xfactorVersion="numericOrNULL",
+                                selectedThresholds="dfOrNULL"
+                        ),
+                        contains="Image")
 
 #' @title Constructor brainImage
 #' 
@@ -61,122 +63,247 @@ brainImage <- setClass("brainImage",
 #'
 #' @import EBImage
 setMethod("initialize", "brainImage",
-          function(.Object, 
-                   values = data.frame, 
-                   filename = character,
-                   coordBIT = numeric,
-                   ...) {
-              cat("Instantiating new brainImage object ...  ")
-              cat("\rCheck coordinates ...                  ")
-              #Check if COORDS vector or x,y,z, values are given
-              if (length(values[1,]) == 2 && "COORD" %in% colnames(values)) {
-                  ##COORDS
-                  #save current bitsize
-                  bak <- options("BITSIZE")
-                  options("BITSIZE"=coordBIT)
-                  cat("\rExtract coordinates [x]...               ")
-                  values$x <- imageanalysisBrain::getXFromCOORD(values$COORD)
-                  cat("\rExtract coordinates [y]...               ")
-                  values$y <- imageanalysisBrain::getYFromCOORD(values$COORD)
-                  cat("\rExtract coordinates [z]...               ")
-                  values$z <- imageanalysisBrain::getZFromCOORD(values$COORD)
-                  values <- values[,c(3:5,1:2)]
-                  #restore bitsize option
-                  options(bak)
-              } else if (length(values[1,]) >= 4 && "x" %in% colnames(values)
-                         && "y" %in% colnames(values) 
-                         && "z" %in% colnames(values)) {
-                  if ("COORD" %in% colnames(values)) {
-                      ##everythings already there
-                  } else {
-                      ##x,y,z, w/o COORD
-                      ## add COORD column
-                      cat("\rCreate COORD vector ...              ")
-                      values$COORD <- imageanalysisBrain::encodeXYZToCOORD(values$x, values$y, values$z)
-                  }
-              } else {
-                  print(colnames(values))
-                  stop("Please provide a data.frame with the following columns:
-                       x,y,z,VALS or VALS,COORD")
-              }
-              ## Check if column order is as expected
-              if (!(colnames(values)[1] == "x" 
+            function(.Object, 
+                    values = data.frame, 
+                    filename = character,
+                    coordBIT = numeric
+                    ) {
+                    #...) {
+                cat("Instantiating new brainImage object ...  ")
+                cat("\rCheck coordinates ...                  ")
+                #Check if COORDS vector or x,y,z, values are given
+                if (length(values[1,]) == 2 && "COORD" %in% colnames(values)) {
+                    ##COORDS
+                    #save current bitsize
+                    bak <- options("BITSIZE")
+                    options("BITSIZE"=coordBIT)
+                    cat("\rExtract coordinates [x]...               ")
+                    values$x <- imageanalysisBrain::getXFromCOORD(values$COORD)
+                    cat("\rExtract coordinates [y]...               ")
+                    values$y <- imageanalysisBrain::getYFromCOORD(values$COORD)
+                    cat("\rExtract coordinates [z]...               ")
+                    values$z <- imageanalysisBrain::getZFromCOORD(values$COORD)
+                    values <- values[,c(3:5,1:2)]
+                    #restore bitsize option
+                    options(bak)
+                } else if (length(values[1,]) >= 4 && "x" %in% colnames(values)
+                        && "y" %in% colnames(values) 
+                        && "z" %in% colnames(values)) {
+                    if ("COORD" %in% colnames(values)) {
+                        ##everythings already there
+                    } else {
+                        ##x,y,z, w/o COORD
+                        ## add COORD column
+                        cat("\rCreate COORD vector ...              ")
+                        bak <- options("BITSIZE")
+                        options("BITSIZE"=coordBIT)
+                        values$COORD <- 
+                            imageanalysisBrain::encodeXYZToCOORD(
+                                values$x, values$y, values$z)
+                        options(bak)
+                    }
+                } else {
+                    print(colnames(values))
+                    stop("Please provide a data.frame with the following 
+                        columns: x,y,z,VALS or VALS,COORD")
+                }
+                ## Check if column order is as expected
+                if (!(colnames(values)[1] == "x" 
                     && colnames(values)[2] == "y"
                     && colnames(values)[3] == "z"
                     && colnames(values)[5] == "COORD")) {
-                  stop("Something went wrong! Colnames not as expected (x,y,z,VAL,COORD)!")
-                  stop(colnames(values))
-              }
-              
-              cat("\rFurther initializations ...            ")
-              .Object@measurements <- values[,4]
-              .Object@values <- values
-              cat("\rCreate Image instance ...              ")
-              .Object@image <- imageanalysisBrain::getImage(values)
-              .Object@filename <- filename
-              .Object@coordBIT <- coordBIT
-              .Object@type <- colnames(values)[4]
-              .Object@coords <- values$COORD
-              .Object@selectedThresholds <- NULL
-              
-              #Not calculated for every instance: default: NULL
-              .Object@xfactor <- NULL
-              .Object@xfactorVersion <- NULL
-              
-              cat("\rCalculate ZeroCoordinates...         ")
-              zeroKoord <- imageanalysisBrain::getZeroKoord(values)
-              .Object@origin <- zeroKoord$vals[,c("x","y","z")]
-              ## Keep track of method on how the origin was calculated
-              .Object@originVersion <- zeroKoord$version
-              ##call Image constructor from EBImage
-              .Object <- callNextMethod(.Object, .Object@image)
-              cat("\rCreated new brainImage instance :)                  ")
-              .Object
-          })
+                    stop("Something went wrong! Colnames 
+                        not as expected (x,y,z,VAL,COORD)!")
+                    stop(colnames(values))
+                }
+                
+                cat("\rFurther initializations ...            ")
+                .Object@measurements <- values[,4]
+                .Object@values <- values
+                cat("\rCreate Image instance ...              ")
+                #.Object@image <- imageanalysisBrain::getImage(values)
+                .Object@filename <- filename
+                .Object@coordBIT <- coordBIT
+                .Object@type <- colnames(values)[4]
+                .Object@coords <- values$COORD
+                .Object@selectedThresholds <- NULL
+                
+                #Not calculated for every instance: default: NULL
+                .Object@xfactor <- NULL
+                .Object@xfactorVersion <- NULL
+                
+                cat("\rCalculate ZeroCoordinates...         ")
+                zeroKoord <- imageanalysisBrain::getZeroKoord(values)
+                .Object@origin <- zeroKoord$vals[,c("x","y","z")]
+                ## Keep track of method on how the origin was calculated
+                .Object@originVersion <- zeroKoord$version
+                .Object <- callNextMethod(.Object, 
+                                        imageanalysisBrain::getImage(values))
+                cat("\rCreated new brainImage instance :)                  ")
+                .Object
+            })
 
 
-# Is there something linke lombok for R to avoid creating getters manually?
+# Is there something like lombok to avoid creating getters manually?
+#' @title Get all encoded coordinates
+#' 
+#' @description Encoded coordinates (COORD vector)
+#' 
+#' @param img brainImage instance 
+#' 
+#' @return COORD vector
+#' 
 #' @export
+#' 
+#' @examples
+#' data <- data.frame(x=1:10, y=1:10, 
+#' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
+#' img <- new("brainImage", data, "test", 10)
+#' getCoords(img)
 getCoords <- function(img) {
-  checkClass(img)
-  img@coords
+    checkClass(img, "brainImage")
+    img@coords
 }
 
+#' @title Get all values as vector
+#' 
+#' @description All measurements stored in the img object
+#' are accessed
+#' 
+#' @param img brainImage instance
+#' 
+#' @return measurements vector
+#' 
 #' @export
+#' 
+#' @examples
+#' data <- data.frame(x=1:10, y=1:10, 
+#' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
+#' img <- new("brainImage", data, "test", 10)
+#' getMeasurements(img)
 getMeasurements <- function(img) {
-  checkClass(img)
-  img@measurements
+    checkClass(img, "brainImage")
+    img@measurements
 }
 
+#' @title Get X-Scaling factor
+#' 
+#' @description Factor to normalize the maximum biparietal 
+#' dimension to 1. Default: NULL. Initialize with 
+#' calcXScalingFactor
+#' 
+#' @param img brainImage instance
+#' 
+#' @return scaling factor
+#' 
 #' @export
+#' 
+#' @examples
+#' data <- data.frame(x=1:10, y=1:10, 
+#' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
+#' img <- new("brainImage", data, "test", 10)
+#' img <- imageanalysisBrain::calcXScalingFactor(img)
+#' getXFactor(img)
 getXFactor <- function(img) {
-  checkClass(img)
-  img@xfactor
+    checkClass(img, "brainImage")
+    img@xfactor
 }
 
+#' @title Get Center of origin
+#' 
+#' @description Center of origin, calculated with 
+#' getZeroKoord()
+#' 
+#' @param img brainImage instance
+#' 
+#' @return coordinates (x,y,z) of the claculated origin
+#' 
 #' @export
+#' 
+#' @examples
+#' data <- data.frame(x=1:10, y=1:10, 
+#' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
+#' img <- new("brainImage", data, "test", 10)
+#' getOrigin(img)
 getOrigin <- function(img) {
-  checkClass(img)
-  img@origin
+    checkClass(img, "brainImage")
+    img@origin
 }
 
+#' @title Get tissue class thresholds 
+#' 
+#' @description Returns cutoffs for different tissue 
+#' classes, identified with 
+#' sampleData(getMeasurements(brainImage), iterat=10000)
+#' and set with setThresholds(). 
+#' 
+#' @param img brainImage instance
+#' 
+#' @return adjusted imageBrain object 
+#' 
 #' @export
+#' 
+#' @examples
+#' options("BITSIZE"=10)
+#' data <- data.frame(x=1:15, y=1:15, 
+#' z=c(rep(2,15), rep(3,15)), val=rnorm(6750))
+#' img <- new("brainImage", data, "test", 10)
+#' img <- setThresholds(img,
+#' imageanalysisBrain::sampleData(getMeasurements(img), iterat=1000))
+#' getThresholds(img)
 getThresholds <- function(img) {
-  checkClass(img)
-  img@selectedThresholds
+    checkClass(img, "brainImage")
+    img@selectedThresholds
 }
 
+#' @title Set tissue class thresholds
+#' 
+#' @description Sets tissue class thresholds for this 
+#' object. Thresholds can be caluclated with 
+#' sampleData().
+#' 
+#' @param img brainImage instance
+#' @param thresholds data.frame with key/val columns,
+#' calculated with sampleData()
+#' 
+#' @return adjusted imageBrain object 
+#' 
 #' @export
+#' 
+#' @examples
+#' data <- data.frame(x=1:15, y=1:15, 
+#' z=c(rep(2,15), rep(3,15)), val=rnorm(6750))
+#' img <- new("brainImage", data, "test", 10)
+#' img <- setThresholds(img,
+#' imageanalysisBrain::sampleData(getMeasurements(img), iterat=1000))
 setThresholds <- function(img, thresholds) {
-  ##TODO: check consistency
-  checkClass(img)
-  img@selectedThresholds <- thresholds
-  return(img)
+    checkClass(img, "brainImage")
+    #TODO: check
+    img@selectedThresholds <- thresholds
+    return(img)
 }
 
+#' @title Checks if object is of given class and stops 
+#' if not.
+#' 
+#' @description An object obj is tests if its class 
+#' equals expClass. If not, execution is halted.
+#' 
+#' @param obj Object to test
+#' @param expClass character of the class 
+#' 
+#' @return TRUE if everything is ok. Otherwise, execution is halted.
+#' 
 #' @export
-checkClass <- function(img) {
-  if (class(img) != "brainImage") {
-    stop("Invalid parameter! Not a brainImage instance!")
-  }
+#' 
+#' @examples
+#' data <- data.frame(x=1:10, y=1:10, 
+#' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
+#' img <- new("brainImage", data, "test", 10)
+#' checkClass(img, "brainImage")
+checkClass <- function(obj, expClass) {
+    if (class(obj) != expClass) {
+        stop(paste("Invalid parameter! Not a",expClass,"instance!"))
+    }
+    return (TRUE)
 }

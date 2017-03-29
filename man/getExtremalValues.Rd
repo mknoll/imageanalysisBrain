@@ -20,6 +20,7 @@ list, containing two data.frames: min and max key/value pairs
 Finds minima and maxima.
 }
 \examples{
-getExtremalValues(c(1:10,2,3,4,1:10,10:1,2:4,1:10), zeichne = FALSE, delta = 0.5)
+getExtremalValues(c(1:10,2,3,4,1:10,10:1,2:4,1:10), 
+zeichne = FALSE, delta = 0.5)
 }
 

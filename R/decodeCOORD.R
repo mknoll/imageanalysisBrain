@@ -16,7 +16,7 @@
 #' decodeCOORDToXYZDf(enc)
 decodeCOORDToXYZDf <- function(enc) {
     data.frame(x=getXFromCOORD(enc), 
-                    y=getYFromCOORD(enc), 
-                    z=getZFromCOORD(enc))
+                y=getYFromCOORD(enc), 
+                z=getZFromCOORD(enc))
 }
 

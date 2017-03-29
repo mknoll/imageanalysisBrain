@@ -48,9 +48,6 @@ sampleData <- function(data, proportion=0.001, iterat=500000, delta=1) {
     n <- floor(size)
     
     ## collect all minimal values (Keys)
-    ## 7 threads, 500.000 iterations, ca 4.4 min
-    ## on Linux gentoo 4.9.6-gentoo-r1 #1 SMP 
-    ## x86_64 Intel(R) Core(TM) i7-4820K CPU @ 3.70GHz GenuineIntel GNU/Linux
     allMin <- foreach (k=1:iterat) %dopar% {
         ##get small subset of voxels
         subData <- data[sample.int(lengthData, size, FALSE, NULL)]
@@ -64,6 +61,6 @@ sampleData <- function(data, proportion=0.001, iterat=500000, delta=1) {
     max <- getExtremalValues(allMins, zeichne = FALSE, delta = 10)$maxima 
 
     doParallel::stopImplicitCluster()
-   
+
     return (determineTissueClasses(max))
 }

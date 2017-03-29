@@ -123,8 +123,10 @@ imgFeatures$gtvSD <- sd(imageanalysisBrain::getMeasurements(gtvImage))
 
 #Distances between points of origins: GTv / Brain
 imgFeatures$koordDistCanberraNorm <- dist(
-    rbind(imageanalysisBrain::getOrigin(gtvImage)*imageanalysisBrain::getXFactor(brainImage), 
-            imageanalysisBrain::getOrigin(brainImage)*imageanalysisBrain::getXFactor(brainImage)),
+    rbind(imageanalysisBrain::getOrigin(gtvImage)*
+                imageanalysisBrain::getXFactor(brainImage), 
+            imageanalysisBrain::getOrigin(brainImage)*
+                imageanalysisBrain::getXFactor(brainImage)),
     method="canberra")
 ```
 
