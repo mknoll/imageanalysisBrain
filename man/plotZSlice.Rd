@@ -5,7 +5,7 @@
 \title{Plot z slice of brainImage instance}
 \usage{
 plotZSlice(data, z, index = 4, ret = FALSE, add = FALSE,
-    col = grDevices::gray.colors(1024), main = "", dimV = NULL)
+  col = grDevices::gray.colors(1024), main = "", dimV = NULL)
 }
 \arguments{
 \item{data}{data.frame with x,y,z,val columns}

@@ -5,7 +5,7 @@
 \title{Find points of origins}
 \usage{
 getZeroKoord(data, sparse = 500, draw = FALSE, col = "yellow",
-    drawsteps = 15)
+  drawsteps = 15)
 }
 \arguments{
 \item{data}{data frame of volume for which the center or origin 

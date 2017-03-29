@@ -166,10 +166,10 @@ These can then be easily plotted (2D, 3D).
 
 ```{r}
 #TODO: Check for >= 1 subclasses ... 
-subclassesGTV <- imageanalysisBrain::getSubclasses(gtvImage, 
+subclassesGTV <- imageanalysisBrain::getTissueSubclasses(gtvImage, 
     imageanalysisBrain::getThresholds(brainImage))
 
-subclassesBrain <- imageanalysisBrain::getSubclasses(brainImage, 
+subclassesBrain <- imageanalysisBrain::getTissueSubclasses(brainImage, 
     imageanalysisBrain::getThresholds(brainImage))
 ```
 ## Plot brain / tumor slices
@@ -178,9 +178,9 @@ Single z-slices can be plotted as follows:
 
 ```{r}
 # Plot slice 10 (z) of the brain volume
-image(brainImage[,,10])
+EBImage::image(brainImage[,,10])
 # and the GTV volume
-image(gtvImage[,,10])
+EBImage::image(gtvImage[,,10])
 ```
 
 If dimensions should be preserved to ensure direct comparability 
@@ -199,6 +199,6 @@ Showing only subclass-slices works similar:
 
 ```{r}
 ##Plot first brain subclass, z-slice 10
-image(subclassesBrain[[1]][,,10])
+EBImage::image(subclassesBrain[[1]][,,10])
 ```
 

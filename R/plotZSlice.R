@@ -17,7 +17,6 @@
 #' @return list of min/max values used for this plot
 #' 
 #' @import grDevices
-#' @importFrom graphics image
 #' @import EBImage
 #' 
 #' @export
@@ -66,7 +65,7 @@ plotZSlice <- function(data, z, index=4, ret=FALSE, add=FALSE,
     }
     
     ##plot image
-    graphics::image(imgM, col=col, axes=FALSE, add=add, main=main)
+    EBImage::image(imgM, col=col, axes=FALSE, add=add, main=main)
     
     ##return dimensions used for this plot
     dim <- list(minx=minx, maxx=maxx, miny=miny, maxy=maxy)

@@ -17,7 +17,7 @@
 #' y=c(rep(1,10),rep(2,10),rep(3,10),rep(4,10),rep(5, 10)), 
 #' z=rep(1, 50), val=rnorm(50))
 #' img <- new("brainImage", data, "test", 10)
-#' getSubclasses(img, data.frame(key=median(data$val), val=NA))
+#' getTissueSubclasses(img, data.frame(key=median(data$val), val=NA))
 getTissueSubclasses <- function(data, split) {
     classImages <- list()
     

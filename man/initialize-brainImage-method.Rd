@@ -6,7 +6,7 @@
 \title{Constructor brainImage}
 \usage{
 \S4method{initialize}{brainImage}(.Object, values = data.frame,
-    filename = character, coordBIT = numeric)
+  filename = character, coordBIT = numeric)
 }
 \arguments{
 \item{.Object}{brainImage object}
