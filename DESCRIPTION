@@ -1,7 +1,7 @@
 Package: imageanalysisBrain
 Type: Package
 Title: Analysis of Brain Imaging Data
-Version: 0.99.6
+Version: 0.99.7
 Date: 2017-03-29
 Author: Maximilian Knoll
 Maintainer: Maximilian Knoll <m.knoll@dkfz.de>

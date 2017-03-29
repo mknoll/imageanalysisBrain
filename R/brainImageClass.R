@@ -230,6 +230,27 @@ getOrigin <- function(img) {
     img@origin
 }
 
+#' @title Get Number of measurements (non NA)
+#' 
+#' @description Returns the total amount of measurements
+#' which are not NA in this image
+#' 
+#' @param img brainImage instance
+#' 
+#' @return number of non-NA measurements 
+#' 
+#' @export
+#' 
+#' @examples
+#' data <- data.frame(x=1:10, y=1:10, 
+#' z=c(rep(2,5), rep(3,5)), val=rnorm(100))
+#' img <- new("brainImage", data, "test", 10)
+#' getNumberOfMeasurements(img)
+getNumberOfMeasurements <- function(img) {
+    checkClass(img, "brainImage")
+    return (length(!is.na(img@measurements)))
+}
+
 #' @title Get tissue class thresholds 
 #' 
 #' @description Returns cutoffs for different tissue 

@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)c
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Load imaging data 
@@ -37,12 +37,9 @@ reserved bit positions for the {x,y,z} values.
 
 x[x..x]ccccccccccbbbbbbbbbbaaaaaaaaaa
 
+#TODO: not needed anymore as global option -> constructor argument
 The number of repetitions is determined with the BITSIZE option. For the 
 example data, 10 is used. 
-
-```{r}
-options("BITSIZE"=10)
-```
 
 To ease analysis of imaging data, a new class is introducted: brainImage.
 This class inherits from the EBImage::Image class.
@@ -115,8 +112,9 @@ The used heuristics are:
 imgFeatures <- list()
 
 # GTV in relation to whole Brain Volume
-imgFeatures$gtvVolNorm <- length(imageanalysisBrain::getCoords(gtvImage))/
-    length(imageanalysisBrain::getCoords(brainImage))
+imgFeatures$gtvVolNorm <- 
+    imageanalysisBrain::getNumberOfMeasurements(gtvImage)/
+    imageanalysisBrain::getNumberOfMeasurements(brainImage)
 
 # Only GTV dependent measurements
 imgFeatures$gtvSD <- sd(imageanalysisBrain::getMeasurements(gtvImage))
@@ -127,7 +125,7 @@ imgFeatures$koordDistCanberraNorm <- dist(
                 imageanalysisBrain::getXFactor(brainImage), 
             imageanalysisBrain::getOrigin(brainImage)*
                 imageanalysisBrain::getXFactor(brainImage)),
-    method="canberra")
+    method="canberra")[1]
 ```
 
 
