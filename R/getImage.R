@@ -27,7 +27,11 @@ getImage <- function(data) {
     
     ##flat
     dt <- rep_len(NA, dimZ*dimX*dimY)
-    data$pos <- (data$z-1)*dimY*dimX+dimX*(data$y-1)+data$x
+    #data$pos <- (data$z-1)*dimY*dimX+dimX*(data$y-1)+data$x
+    data$pos <- (data$z)*dimY*dimX+dimX*(data$y-1)+data$x
+    if (any(data$pos < 0)) {
+	stop("Something went wrong while caluclation positions!")
+    }
     dt[data$pos] <- data[,4]
     ##unflatten
     dt <- array(dt, dim=c(dimX, dimY, dimZ))
